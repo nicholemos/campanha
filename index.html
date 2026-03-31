@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Missões T20</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+    <header>
+        <h1>Gerador de Missões T20</h1>
+    </header>
+
+    <main class="container">
+        <section class="config-panel">
+            <div class="control-row">
+                <div class="input-group" style="flex: 2;">
+                    <label>Nome da Missão:</label>
+                    <input type="text" id="nomeMissao" placeholder="Ex: O Resgate em Valkaria" onchange="salvarDados()">
+                </div>
+                <div class="input-group">
+                    <label>Nível do Grupo: <span class="tooltip-icon" tabindex="0"
+                            aria-label="O nível determina os valores de CD (Classe de Dificuldade) e ND (Nível de Desafio) das cenas">?</span></label>
+                    <input type="number" id="selectNivel" value="1" min="1" max="20"
+                        onchange="atualizarCenasExistentes()" aria-label="Nível do grupo de 1 a 20">
+                </div>
+                <div class="input-group" style="flex-grow: 1;">
+                    <label>Sugestão Automática:</label>
+                    <div class="btn-group">
+                        <button onclick="gerarSugestao('simples')"
+                            title="Gera uma missão com 3 cenas: Social, Exploração e Boss">Simples</button>
+                        <button onclick="gerarSugestao('comum')"
+                            title="Gera uma missão com 4 cenas: Social, Exploração, Combate e Boss">Comum</button>
+                        <button onclick="gerarSugestao('complexa')"
+                            title="Gera uma missão com 5 cenas: Social, Exploração, Combate, Exploração e Boss">Complexa</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-row">
+                <div class="input-group" style="flex-grow: 1;">
+                    <label>Adicionar Cena:</label>
+                    <div class="btn-group">
+                        <button class="btn-add" onclick="adicionarCena('Interpretacao')"
+                            title="Cena social, investigação, diálogo" aria-label="Adicionar cena social">+
+                            Social</button>
+                        <button class="btn-add" onclick="adicionarCena('Exploracao')"
+                            title="Viagem, masmorra, rastreamento" aria-label="Adicionar cena de exploração">+
+                            Explorar</button>
+                        <button class="btn-add" onclick="adicionarCena('Combate')"
+                            title="Combate contra criaturas ou guardas" aria-label="Adicionar cena de combate">+
+                            Combate</button>
+                        <button class="btn-add" onclick="adicionarCena('Boss')"
+                            title="Confronto final com vilão ou monstro lendário" aria-label="Adicionar cena de boss">+
+                            Boss</button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="btn-group" style="flex: 0 1 auto; gap: 10px;">
+                <button id="btnCopiar" onclick="copiarResumo()"
+                    title="Copia o resumo da missão para a área de transferência">Copiar Texto</button>
+                <button id="btnExportar" onclick="exportarPDF()" title="Exporta a missão atual como PDF">Exportar
+                    PDF</button>
+                <button id="btnLimpar" onclick="limparTudo()" title="Limpa todas as cenas da missão atual">Limpar
+                    Tudo</button>
+            </div>
+        </section>
+
+        <section class="ficha-panel">
+            <div class="ficha-header">
+                <label>Biblioteca de Fichas:
+                    <span class="tooltip-icon" tabindex="0"
+                        aria-label="Importe várias fichas JSON. Elas ficarão salvas para você escolher qual inserir em cada cena.">?</span>
+                </label>
+                <button id="btnImportarFicha" onclick="importarFicha()" title="Adicionar ficha à biblioteca">
+                    🧙 Adicionar Ficha
+                </button>
+            </div>
+            <div id="listaFichasBiblioteca" class="ficha-list-container">
+            </div>
+        </section>
+
+        <section class="campaign-manager">
+            <div class="campaign-header">
+                <label>Minha Campanha (Aventuras Salvas):</label>
+                <button id="btnSalvarAventura" onclick="salvarAventuraNaCampanha()"
+                    title="Salva a missão atual na campanha">💾 Salvar Missão Atual</button>
+            </div>
+            <div id="abasCampanha" class="tabs-container">
+            </div>
+            <div id="campanhaActions" style="display:none; margin-top: 10px;">
+                <button id="btnExportarCampanha" onclick="exportarCampanhaPDF()"
+                    title="Exporta todas as missões salvas como um único PDF"
+                    aria-label="Exportar campanha completa como PDF">📚 Exportar Campanha (PDF)</button>
+                <button id="btnExportarJSON" onclick="exportarCampanhaJSON()"
+                    title="Exporta a campanha como arquivo JSON para backup ou compartilhamento"
+                    aria-label="Exportar campanha como JSON">💾 Exportar JSON</button>
+                <button id="btnLimparCampanha" onclick="limparCampanha()" style="background: #2b2b2b;"
+                    title="Remove todas as missões da campanha" aria-label="Limpar toda a campanha">Limpar
+                    Campanha</button>
+            </div>
+            <div style="margin-top: 8px;">
+                <button id="btnImportarJSON" onclick="importarCampanhaJSON()"
+                    title="Importa uma campanha a partir de um arquivo JSON"
+                    aria-label="Importar campanha de arquivo JSON"
+                    style="background: #2b2b2b; flex: 0 1 auto; min-width: 0; font-size: 0.85rem; padding: 6px 12px;">
+                    📂 Importar Campanha (JSON)
+                </button>
+            </div>
+        </section>
+
+        <section id="resumoMissao"></section>
+
+        <div id="listaCenas"></div>
+    </main>
+
+    <!-- Overlay de loading (inicialmente oculto) -->
+    <div id="loadingOverlay"
+        style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; color: white; font-size: 1.5rem; flex-direction: column;">
+        <div style="background: #2f3f4f; padding: 20px; border-radius: 15px; text-align: center;">
+            <div class="spinner"></div>
+            <p>Gerando PDF, aguarde...</p>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

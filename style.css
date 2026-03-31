@@ -1,0 +1,1083 @@
+@font-face {
+    font-family: "Tormenta";
+    src: url("Tormenta.ttf") format("truetype");
+}
+
+:root {
+    --str-slate: #2f3f4f;
+    --str-slate-2: #344a5c;
+    --str-accent: #e0483f;
+    --bg-main: #f2f4f7;
+    --card-bg: #fff;
+    --border: #e2e8f0;
+    --radius: 14px;
+    --primary: #8b0000;
+}
+
+/* ===== BASE ===== */
+body {
+    margin: 0;
+    padding-bottom: 50px;
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg-main);
+}
+
+header {
+    background: var(--str-slate);
+    color: #fff;
+    padding: 24px 16px;
+    text-align: center;
+    border-bottom: 4px solid var(--str-accent);
+}
+
+header h1 {
+    font-family: "Tormenta";
+    font-size: 3.5rem;
+    margin: 0;
+}
+
+.container {
+    max-width: 850px;
+    margin: 24px auto;
+    padding: 0 16px;
+}
+
+/* ===== PAINEL DE CONFIGURAÇÃO ===== */
+
+
+
+.input-group label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--str-slate);
+    margin-bottom: 6px;
+}
+
+/* ===== BOTÕES ===== */
+button {
+    font-family: "Tormenta", sans-serif;
+    font-size: 1rem;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--str-slate);
+    cursor: pointer;
+    transition: 0.2s;
+    background: var(--str-slate);
+    color: #fff;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #a52a2a 0%, #bf3636 100%);
+    transform: translateY(-1px);
+}
+
+.btn-add {
+    background: black;
+    background-color: #FFFFD1;
+    color: #2b2b2b;
+}
+
+#btnCopiar {
+    background: var(--str-accent);
+    background-color: #3a6420;
+    border: 1px solid var(--primary);
+    font-weight: 800;
+    flex: 0 1 auto;
+    min-width: 140px;
+}
+
+#btnCopiar:hover {
+    filter: brightness(1.1);
+    background-color: #ff0000;
+}
+
+#btnLimpar {
+    background: #2b2b2b;
+    color: #f1e0c6;
+    flex: 0 1 auto;
+    padding: 0 20px;
+    border: 1px solid var(--primary);
+}
+
+/* ===== CARDS DE CENA ===== */
+.cena-card {
+    display: flex;
+    align-items: stretch;
+    background: var(--card-bg);
+    margin-bottom: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.drag-handle {
+    padding: 0 12px;
+    color: #cbd5e1;
+    cursor: grab;
+    font-size: 1.2rem;
+    background: #fcfcfc;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+}
+
+.cena-main {
+    flex-grow: 1;
+    padding: 16px;
+    cursor: pointer;
+}
+
+.cena-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    width: 100%;
+}
+
+.cena-info-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.cena-textos {
+    display: flex;
+    flex-direction: column;
+}
+
+.chevron-icon {
+    font-size: 1.2rem;
+    color: var(--str-slate);
+    transition: transform 0.3s ease;
+    opacity: 0.5;
+}
+
+.cena-card:has(.cena-plot.aberto) .chevron-icon {
+    transform: rotate(90deg);
+    opacity: 1;
+    color: var(--str-accent);
+}
+
+.input-titulo {
+    font-family: "Tormenta";
+    font-size: 1.6rem;
+    color: var(--str-slate);
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+}
+
+.input-titulo:focus {
+    outline: none;
+    color: var(--str-accent);
+}
+
+.cena-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.select-dificuldade {
+    min-width: 180px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-remover {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-remover:hover {
+    color: var(--str-accent);
+    transform: scale(1.1);
+}
+
+/* ===== ÁREA DO ENREDO (PLOT) ===== */
+.cena-plot {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.cena-plot.aberto {
+    max-height: 400px;
+    opacity: 1;
+    margin-top: 15px;
+}
+
+.cena-plot textarea {
+    width: 100%;
+    min-height: 100px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    background: #f8fafc;
+    resize: vertical;
+    font-family: inherit;
+}
+
+/* ===== STATUS E AUXILIARES ===== */
+.status-bar {
+    background: var(--str-slate);
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: var(--radius);
+    font-family: "Tormenta";
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    border-bottom: 3px solid var(--str-accent);
+}
+
+.border-interpretacao {
+    border-left: 8px solid #3b82f6;
+}
+
+.border-exploracao {
+    border-left: 8px solid #10b981;
+}
+
+.border-combate {
+    border-left: 8px solid #f59e0b;
+}
+
+.border-boss {
+    border-left: 8px solid var(--str-accent);
+}
+
+#selectNivel {
+    width: 70px;
+    height: 44px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+/* ===== AJUSTE DE GRID DO PAINEL ===== */
+.config-panel {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* Espaço entre a linha de nível e a linha de adição */
+}
+
+.control-row {
+    display: flex;
+    flex-wrap: nowrap;
+    /* Impede que os botões pulem para baixo */
+    gap: 20px;
+    align-items: flex-end;
+    width: 100%;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    /* Faz os grupos ocuparem o espaço disponível uniformemente */
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+/* ===== BOTÕES INDIVIDUAIS ===== */
+button {
+    flex: 1;
+    /* Garante que todos os botões no mesmo grupo tenham a mesma largura */
+    min-width: 100px;
+    white-space: nowrap;
+    /* Impede o texto de quebrar dentro do botão */
+}
+
+/* Grupo de Ações (Copiar e Limpar) no canto direito */
+.action-group {
+    flex: 0 0 auto;
+    /* Não deixa este grupo esticar */
+    display: flex;
+    flex-direction: column;
+    /* Empilha Copiar sobre Limpar como na sua imagem */
+    gap: 8px;
+    min-width: 180px;
+}
+
+#btnCopiar,
+#btnLimpar {
+    width: 100%;
+    flex: none;
+}
+
+/* ===== AJUSTE DE GRID DO PAINEL (VERSÃO FINAL) ===== */
+.config-panel {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* Espaço entre as linhas */
+}
+
+.control-row {
+    display: flex;
+    flex-wrap: nowrap;
+    /* Garante que fiquem na mesma linha */
+    gap: 15px;
+    align-items: flex-end;
+    width: 100%;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    /* Removemos o flex: 1 daqui para o campo de nível não esticar demais */
+}
+
+.btn-group {
+    display: flex;
+    gap: 8px;
+    flex-grow: 1;
+    /* Faz os grupos de botões ocuparem o espaço restante */
+}
+
+/* ===== AJUSTE DOS BOTÕES ESPECÍFICOS ===== */
+button {
+    flex: 1;
+    min-width: 120px;
+    white-space: nowrap;
+}
+
+/* Botões de Ação (Copiar e Limpar) agora horizontais */
+#btnCopiar,
+#btnLimpar {
+    flex: 0 1 auto;
+    /* Eles não crescem loucamente */
+    min-width: 160px;
+}
+
+#btnLimpar {
+    background: #2b2b2b;
+    color: #f1e0c6;
+    border: 1px solid var(--primary);
+}
+
+/* Garante que o input de nível tenha tamanho fixo e não empurre os botões */
+#selectNivel {
+    width: 80px;
+    flex: none;
+}
+
+/* Ajuste de Exportação */
+#btnExportar {
+    background: var(--str-slate-2);
+    background-color: #3a6420;
+    border: 1px solid var(--border);
+    flex: 0 1 auto;
+    min-width: 160px;
+}
+
+#btnExportar:hover {
+    background: var(--str-slate);
+    background-color: #8b0000;
+}
+
+/* Regra para forçar a visibilidade dos campos no PDF */
+@media print {
+    .cena-plot {
+        max-height: none !important;
+        opacity: 1 !important;
+        display: block !important;
+    }
+}
+
+#nomeMissao {
+    width: 100%;
+    height: 44px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 1rem;
+    background: #f8fafc;
+}
+
+/* ===== AJUSTE DA PRIMEIRA LINHA DO PAINEL ===== */
+.control-row:first-of-type {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+}
+
+/* Nome da Missão: Ocupa a maior parte do espaço (flex: 2) */
+.control-row:first-of-type .input-group:nth-child(1) {
+    flex: 2.5;
+}
+
+/* Nível do Grupo: Espaço fixo e centralizado para não apertar */
+.control-row:first-of-type .input-group:nth-child(2) {
+    flex: 0 0 100px;
+}
+
+/* Sugestão Automática: Ocupa o restante (flex: 1.5) */
+.control-row:first-of-type .input-group:nth-child(3) {
+    flex: 1.5;
+}
+
+/* Garantir que o input de texto do nome ocupe toda a sua área */
+#nomeMissao {
+    width: 100%;
+    height: 44px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 1rem;
+    background: #f8fafc;
+    box-sizing: border-box;
+}
+
+/* Estilização da área de imagem dentro do plot */
+.plot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.image-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.image-input-wrapper label {
+    font-size: 10px;
+    color: var(--str-slate);
+    font-weight: bold;
+}
+
+.image-input-wrapper input {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    background: #fff;
+}
+
+.plot-preview-img {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.plot-preview-img img {
+    width: 100%;
+    display: block;
+    max-height: 300px;
+    /* Limita a altura para não ficar gigante */
+    object-fit: cover;
+}
+
+.campaign-manager {
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+}
+
+.tabs-container {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 10px 0;
+    min-height: 50px;
+}
+
+/* ===== NOVO VISUAL DAS ABAS DA CAMPANHA ===== */
+.tab-missao {
+    background: var(--str-slate);
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    /* NOME EM CIMA, BOTÕES EMBAIXO */
+    gap: 10px;
+    min-width: 180px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+}
+
+.tab-missao:hover {
+    border-color: var(--str-accent);
+}
+
+.tab-titulo {
+    font-weight: bold;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 5px;
+}
+
+.tab-titulo small {
+    opacity: 0.7;
+    font-family: sans-serif;
+}
+
+/* Container dos botões na aba */
+.tab-btns {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+}
+
+/* Estilo individual dos botões da aba */
+.tab-btns button {
+    flex: 1;
+    min-width: 0;
+    height: 30px;
+    min-height: 30px;
+    padding: 0;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    border: none;
+}
+
+.btn-tab-update {
+    background-color: #e67e22 !important;
+}
+
+/* Laranja */
+.btn-tab-copy {
+    background-color: #3498db !important;
+}
+
+/* Azul */
+.btn-tab-delete {
+    background-color: #c0392b !important;
+}
+
+/* Vermelho */
+
+.tab-btns button:hover {
+    filter: brightness(1.2);
+    transform: scale(1.05);
+}
+
+.tab-missao .remove-tab {
+    cursor: pointer;
+    font-weight: bold;
+    opacity: 0.7;
+}
+
+.campaign-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#abasCampanha:empty::after {
+    content: "Nenhuma missão salva na campanha ainda...";
+    font-size: 0.8rem;
+    color: #999;
+    font-style: italic;
+    padding: 10px;
+}
+
+#campanhaActions {
+    display: none;
+    /* Controlado pelo JS */
+    gap: 10px;
+}
+
+.tab-missao span:first-child:hover {
+    text-decoration: underline;
+    color: #f1e0c6;
+}
+
+/* Spinner para loading */
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #e0483f;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Melhor preview de imagem */
+.plot-preview-img img {
+    max-height: 200px;
+    /* Reduzido para não ocupar muito espaço */
+    object-fit: contain;
+    background: #f0f0f0;
+}
+
+/* Botão de remover imagem */
+.btn-remove-img {
+    background: none;
+    border: none;
+    color: #e0483f;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-left: 8px;
+    padding: 0 5px;
+}
+
+.btn-remove-img:hover {
+    color: #c0392b;
+    transform: scale(1.1);
+}
+
+/* Ajuste do input de imagem */
+.image-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.image-input-wrapper input {
+    flex: 1;
+}
+
+/* Botões de ação nas abas da campanha */
+.tab-missao button {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 0 2px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.tab-missao button:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+}
+
+/* Botão de atualizar (🔄) com cor especial */
+.tab-missao button:first-of-type {
+    background: #e67e22;
+}
+
+.tab-missao button:first-of-type:hover {
+    background: #f39c12;
+}
+
+.tab-missao button:first-of-type {
+    background: #e67e22;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-weight: bold;
+}
+
+/* ===== TOOLTIP ICON ===== */
+.tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--str-slate);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    cursor: help;
+    position: relative;
+    vertical-align: middle;
+    margin-left: 4px;
+    font-family: system-ui, sans-serif;
+    flex-shrink: 0;
+}
+
+.tooltip-icon::after {
+    content: attr(aria-label);
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a2a35;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    white-space: normal;
+    width: 220px;
+    line-height: 1.4;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    font-family: system-ui, sans-serif;
+    font-weight: normal;
+    text-transform: none;
+}
+
+.tooltip-icon:hover::after,
+.tooltip-icon:focus::after {
+    display: block;
+}
+
+/* ===== TOAST NOTIFICATIONS ===== */
+#toastContainer {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.toast {
+    background: #1a2a35;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    border-left: 4px solid #888;
+    max-width: 320px;
+}
+
+.toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.toast-sucesso {
+    border-left-color: #27ae60;
+}
+
+.toast.toast-erro {
+    border-left-color: #e0483f;
+}
+
+.toast.toast-aviso {
+    border-left-color: #e67e22;
+}
+
+.toast.toast-info {
+    border-left-color: #3b82f6;
+}
+
+/* ===== INTENSIDADE VISUAL (PONTOS) ===== */
+.intensidade-pontos {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.intensidade-ponto {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+    transition: background 0.3s;
+}
+
+.intensidade-ponto.ativo {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: transparent;
+}
+
+/* ===== BOTÕES JSON CAMPANHA ===== */
+#btnExportarJSON {
+    background: #344a5c;
+    border: 1px solid var(--border);
+    flex: 0 1 auto;
+    min-width: 140px;
+}
+
+#btnExportarJSON:hover {
+    background: #1a2a35;
+}
+
+#btnImportarJSON {
+    background: #2b2b2b !important;
+}
+
+/* ===== FICHA PANEL ===== */
+.ficha-panel {
+    background: var(--card-bg);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ficha-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ficha-header label {
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--str-slate);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#btnImportarFicha {
+    background: var(--str-slate);
+    flex: 0 1 auto;
+    min-width: 0;
+    font-size: 0.9rem;
+    padding: 8px 14px;
+}
+
+.ficha-vazia {
+    font-size: 0.8rem;
+    color: #999;
+    font-style: italic;
+}
+
+.ficha-badge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #1a2a35 0%, #2f3f4f 100%);
+    border-radius: 10px;
+    padding: 10px 14px;
+    gap: 10px;
+}
+
+.ficha-badge-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+}
+
+.ficha-nome {
+    font-family: "Tormenta", serif;
+    font-size: 1.1rem;
+    color: #fff;
+    font-weight: bold;
+}
+
+.ficha-detalhe {
+    font-size: 0.78rem;
+    color: #aac4d8;
+}
+
+.btn-remove-ficha {
+    background: none !important;
+    border: none !important;
+    color: #e0483f !important;
+    font-size: 1rem !important;
+    cursor: pointer;
+    padding: 4px 6px !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    opacity: 0.8;
+}
+
+.btn-remove-ficha:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    background: none !important;
+}
+
+/* Botão de inserir ficha no plot */
+.btn-inserir-ficha {
+    background: linear-gradient(135deg, #1a2a35, #2f3f4f) !important;
+    color: #aac4d8 !important;
+    border: 1px dashed #4a6a7f !important;
+    border-radius: 6px !important;
+    font-size: 0.82rem !important;
+    padding: 6px 12px !important;
+    cursor: pointer;
+    text-align: left !important;
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    transition: all 0.2s;
+    font-family: system-ui, sans-serif !important;
+}
+
+.btn-inserir-ficha:hover {
+    background: linear-gradient(135deg, #2f3f4f, #3a5a6f) !important;
+    color: #fff !important;
+    border-color: #6a9ab8 !important;
+    transform: none !important;
+}
+
+/* Mensagem de erro de imagem */
+.img-error-msg {
+    background: #fff8f8;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    color: #c0392b;
+    font-size: 0.8rem;
+    padding: 10px 14px;
+    margin-top: 8px;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ===== RESPONSIVIDADE MOBILE ===== */
+@media (max-width: 700px) {
+    header h1 {
+        font-size: 2.2rem;
+    }
+
+    .control-row {
+        flex-wrap: wrap !important;
+    }
+
+    .control-row:first-of-type .input-group:nth-child(1),
+    .control-row:first-of-type .input-group:nth-child(2),
+    .control-row:first-of-type .input-group:nth-child(3) {
+        flex: 1 1 100% !important;
+    }
+
+    .btn-group {
+        flex-wrap: wrap;
+    }
+
+    button {
+        min-width: 80px;
+    }
+
+    #btnCopiar,
+    #btnLimpar,
+    #btnExportar {
+        flex: 1 1 calc(50% - 5px);
+        min-width: 0;
+    }
+
+    .cena-actions {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .select-dificuldade {
+        min-width: 140px;
+        font-size: 0.85rem;
+    }
+
+    .input-titulo {
+        font-size: 1.2rem;
+    }
+
+    .status-bar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .campaign-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    #campanhaActions {
+        flex-wrap: wrap;
+    }
+
+    #campanhaActions button {
+        flex: 1 1 calc(50% - 5px);
+        min-width: 0;
+        font-size: 0.85rem;
+    }
+
+    .container {
+        padding: 0 10px;
+    }
+
+    .config-panel {
+        padding: 16px;
+    }
+}
+
+.inserir-ficha-wrap {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    background: #f1f5f9;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.select-fichas-cena {
+    flex: 1;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.85rem;
+}
+
+.btn-inserir-ficha {
+    white-space: nowrap;
+    padding: 5px 12px !important;
+}
+
+.ficha-list-container {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
