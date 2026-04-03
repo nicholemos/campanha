@@ -469,30 +469,124 @@ button {
     gap: 10px;
 }
 
-.image-input-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-top: 5px;
+/* ===== NOVA SEÇÃO DE IMAGEM COM ABAS ===== */
+.imagem-section {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8fafc;
 }
 
-.image-input-wrapper label {
-    font-size: 10px;
+.imagem-section-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
     color: var(--str-slate);
-    font-weight: bold;
+    padding: 8px 12px 4px;
+    background: #f0f4f8;
+    border-bottom: 1px solid var(--border);
+}
+
+.imagem-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: #f0f4f8;
+}
+
+.imagem-tab {
+    flex: 1 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 7px 10px !important;
+    font-size: 0.78rem !important;
+    font-family: system-ui, sans-serif !important;
+    background: transparent !important;
+    color: #666 !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0 !important;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.imagem-tab.ativo {
+    color: var(--primary) !important;
+    border-bottom-color: var(--primary) !important;
+    font-weight: 600;
+    background: #fff !important;
+}
+
+.imagem-tab:hover:not(.ativo) {
+    background: #e8eef5 !important;
+    transform: none !important;
+    color: var(--str-slate) !important;
+}
+
+.imagem-aba {
+    display: none;
+    padding: 10px 12px;
+}
+
+.imagem-aba.ativa {
+    display: block;
+}
+
+.image-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .image-input-wrapper input {
+    flex: 1;
     padding: 8px;
     border: 1px solid var(--border);
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 0.82rem;
     background: #fff;
+}
+
+.imagem-aviso {
+    display: block;
+    font-size: 0.72rem;
+    color: #e67e22;
+    margin-top: 6px;
+    line-height: 1.4;
+}
+
+/* Área de upload local */
+.upload-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 10px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: #555;
+}
+
+.upload-area:hover {
+    border-color: var(--str-accent);
+    background: #fff8f8;
+    color: var(--primary);
+}
+
+.upload-trocar {
+    color: var(--str-accent);
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .plot-preview-img {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 6px;
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid var(--border);
@@ -501,9 +595,31 @@ button {
 .plot-preview-img img {
     width: 100%;
     display: block;
-    max-height: 300px;
-    /* Limita a altura para não ficar gigante */
-    object-fit: cover;
+    max-height: 220px;
+    object-fit: contain;
+    background: #f0f0f0;
+}
+
+/* Link criar ficha */
+.link-ficha-modelo {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: #3b82f6;
+    text-decoration: none;
+    padding: 5px 10px;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    background: #eff6ff;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.link-ficha-modelo:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1d4ed8;
 }
 
 .campaign-manager {
@@ -1080,4 +1196,116 @@ button {
     max-height: 200px;
     overflow-y: auto;
     padding-right: 5px;
+}
+/* ===== SEÇÃO DE TESOURO ===== */
+.tesouro-section {
+    border-top: 1px solid var(--border);
+    background: linear-gradient(135deg, #1a2a10 0%, #1e3318 100%);
+    padding: 10px 14px;
+    border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.tesouro-controles {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tesouro-label {
+    font-family: "Tormenta", serif;
+    font-size: 0.9rem;
+    color: #c8e6a0;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.tesouro-mod-select {
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 1px solid #3a5a20;
+    background: #0f1f0a;
+    color: #c8e6a0;
+    font-size: 0.82rem;
+    cursor: pointer;
+    min-width: 90px;
+}
+
+.btn-rolar-tesouro {
+    background: linear-gradient(135deg, #2d6a0f, #3d8a1a) !important;
+    color: #e8f5d0 !important;
+    border: 1px solid #4a9a22 !important;
+    border-radius: 6px !important;
+    font-size: 0.85rem !important;
+    padding: 6px 12px !important;
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    font-family: "Tormenta", serif !important;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-rolar-tesouro:hover {
+    background: linear-gradient(135deg, #3d8a1a, #4faa24) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 3px 10px rgba(60,150,20,0.3);
+}
+
+.btn-limpar-tesouro {
+    background: none !important;
+    border: none !important;
+    color: #688a50 !important;
+    font-size: 0.9rem !important;
+    cursor: pointer;
+    padding: 4px !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.btn-limpar-tesouro:hover {
+    opacity: 1;
+    color: #e0483f !important;
+    transform: none !important;
+    background: none !important;
+}
+
+.tesouro-resultado {
+    display: none;
+    white-space: pre-wrap;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: #d4edaa;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #2a4a15;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.tesouro-resultado.visivel {
+    display: block;
+    animation: fadeInDown 0.3s ease;
+}
+
+/* Bold inside pre via pseudo trick — use strong class highlight */
+.tesouro-resultado strong, .tesouro-resultado b {
+    color: #ffd97a;
+    font-weight: bold;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 700px) {
+    .tesouro-controles { gap: 6px; }
+    .btn-rolar-tesouro { font-size: 0.8rem !important; padding: 5px 10px !important; }
 }
