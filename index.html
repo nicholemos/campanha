@@ -77,9 +77,13 @@
                     <span class="tooltip-icon" tabindex="0"
                         aria-label="Importe várias fichas JSON. Elas ficarão salvas para você escolher qual inserir em cada cena.">?</span>
                 </label>
-                <button id="btnImportarFicha" onclick="importarFicha()" title="Adicionar ficha à biblioteca">
-                    🧙 Adicionar Ficha
-                </button>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <a href="https://nicholemos.github.io/ficha" target="_blank" class="link-ficha-modelo"
+                        title="Abrir criador de fichas T20 em nova aba">📝 Criar ficha</a>
+                    <button id="btnImportarFicha" onclick="importarFicha()" title="Adicionar ficha à biblioteca">
+                        🧙 Adicionar Ficha
+                    </button>
+                </div>
             </div>
             <div id="listaFichasBiblioteca" class="ficha-list-container">
             </div>
