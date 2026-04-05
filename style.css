@@ -199,8 +199,25 @@ button:hover {
     border: none;
     color: #888;
     font-size: 1.5rem;
+    /* Mantém o X grande como você gosta */
     cursor: pointer;
     transition: 0.2s;
+
+    /* AJUSTE DE TAMANHO DO BOTÃO */
+    display: flex;
+    /* Centraliza o X perfeitamente */
+    align-items: center;
+    /* Alinhamento vertical */
+    justify-content: center;
+    /* Alinhamento horizontal */
+    width: 30px;
+    /* Define a largura fixa do botão */
+    height: 30px;
+    /* Define a altura fixa do botão */
+    padding: 0;
+    /* Remove espelhamento interno extra */
+    line-height: 1;
+    /* Evita que o X empurre a borda para baixo */
 }
 
 .btn-remover:hover {
@@ -1197,10 +1214,155 @@ button {
     overflow-y: auto;
     padding-right: 5px;
 }
-/* ===== SEÇÃO DE TESOURO ===== */
+
+/* ===== SEÇÃO DE PERIGO NOS CARDS ===== */
+.perigo-section {
+    border-top: 1px solid var(--border);
+    background: linear-gradient(135deg, #1c1a08 0%, #2a2510 100%);
+    padding: 10px 14px;
+    border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.perigo-controles {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.perigo-label {
+    font-family: "Tormenta", serif;
+    font-size: 0.9rem;
+    color: #f0d080;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-buscar-perigo {
+    background: linear-gradient(135deg, #5a4a00, #7a6500) !important;
+    color: #ffe87a !important;
+    border: 1px solid #8a7500 !important;
+    border-radius: 6px !important;
+    font-size: 0.85rem !important;
+    padding: 6px 12px !important;
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    font-family: "Tormenta", serif !important;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-buscar-perigo:hover {
+    background: linear-gradient(135deg, #7a6500, #9a8500) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 3px 10px rgba(150, 130, 0, 0.35);
+}
+
+.btn-limpar-perigo {
+    background: none !important;
+    border: 1px solid #5a4a00 !important;
+    color: #a89050 !important;
+    font-size: 0.75rem !important;
+    padding: 4px 8px !important;
+    border-radius: 5px !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    cursor: pointer;
+    font-family: system-ui, sans-serif !important;
+    transition: all 0.2s;
+}
+
+.btn-limpar-perigo:hover {
+    background: rgba(90, 74, 0, 0.3) !important;
+    color: #e0483f !important;
+    transform: none !important;
+}
+
+.perigo-mini-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #4a3f00;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 8px;
+}
+
+.perigo-mini-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.perigo-mini-nome {
+    color: #ffe87a;
+    font-size: 0.9rem;
+    font-family: "Tormenta", serif;
+}
+
+.perigo-mini-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+/* Shared tag styles */
+.ptag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+    font-family: system-ui, sans-serif;
+}
+
+.ptag-nd {
+    background: #7a2000;
+    color: #ffcbaa;
+}
+
+.ptag-tipo {
+    background: #2a4a00;
+    color: #c0f080;
+}
+
+.ptag-origem {
+    background: #1a1a4a;
+    color: #aabbff;
+}
+
+.btn-inserir-perigo-plot {
+    background: linear-gradient(135deg, #3a3000, #5a4a00) !important;
+    color: #f0d080 !important;
+    border: 1px dashed #6a5a00 !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+    padding: 6px 10px !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    white-space: nowrap;
+    font-family: system-ui, sans-serif !important;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-inserir-perigo-plot:hover {
+    background: linear-gradient(135deg, #5a4a00, #7a6500) !important;
+    color: #fff8cc !important;
+    transform: none !important;
+}
+
+/* ===== TESOURO SECTION ===== */
 .tesouro-section {
     border-top: 1px solid var(--border);
-    background: linear-gradient(135deg, #1a2a10 0%, #1e3318 100%);
+    background: linear-gradient(135deg, #0d1f0a 0%, #162612 100%);
     padding: 10px 14px;
     border-radius: 0 0 var(--radius) var(--radius);
 }
@@ -1223,8 +1385,8 @@ button {
 .tesouro-mod-select {
     padding: 5px 8px;
     border-radius: 6px;
-    border: 1px solid #3a5a20;
-    background: #0f1f0a;
+    border: 1px solid #2a5a18;
+    background: #0a1808;
     color: #c8e6a0;
     font-size: 0.82rem;
     cursor: pointer;
@@ -1232,9 +1394,9 @@ button {
 }
 
 .btn-rolar-tesouro {
-    background: linear-gradient(135deg, #2d6a0f, #3d8a1a) !important;
-    color: #e8f5d0 !important;
-    border: 1px solid #4a9a22 !important;
+    background: linear-gradient(135deg, #1d5a0a, #2d7a14) !important;
+    color: #e0f5cc !important;
+    border: 1px solid #3a9a1e !important;
     border-radius: 6px !important;
     font-size: 0.85rem !important;
     padding: 6px 12px !important;
@@ -1247,15 +1409,15 @@ button {
 }
 
 .btn-rolar-tesouro:hover {
-    background: linear-gradient(135deg, #3d8a1a, #4faa24) !important;
+    background: linear-gradient(135deg, #2d7a14, #3d9a1e) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 3px 10px rgba(60,150,20,0.3);
+    box-shadow: 0 3px 10px rgba(40, 140, 20, 0.3);
 }
 
 .btn-limpar-tesouro {
     background: none !important;
     border: none !important;
-    color: #688a50 !important;
+    color: #5a8a40 !important;
     font-size: 0.9rem !important;
     cursor: pointer;
     padding: 4px !important;
@@ -1278,10 +1440,10 @@ button {
     white-space: pre-wrap;
     font-family: 'Courier New', monospace;
     font-size: 0.78rem;
-    line-height: 1.6;
-    color: #d4edaa;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid #2a4a15;
+    line-height: 1.7;
+    color: #c8e6a0;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid #1a4a10;
     border-radius: 6px;
     padding: 10px 12px;
     margin-top: 8px;
@@ -1294,18 +1456,431 @@ button {
     animation: fadeInDown 0.3s ease;
 }
 
-/* Bold inside pre via pseudo trick — use strong class highlight */
-.tesouro-resultado strong, .tesouro-resultado b {
-    color: #ffd97a;
+.tesouro-resultado strong {
+    color: #ffe87a;
+}
+
+/* ===== MODAL DE PERIGOS ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.modal-box {
+    background: #1a1a2a;
+    border: 1px solid #3a3a5a;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 960px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 2px solid #e0483f;
+    background: linear-gradient(135deg, #2a1818 0%, #1a1a2a 100%);
+    flex-shrink: 0;
+}
+
+.modal-titulo {
+    font-family: "Tormenta", serif;
+    font-size: 1.35rem;
+    color: #f0d080;
+    margin: 0;
+}
+
+.modal-fechar {
+    background: none !important;
+    border: none !important;
+    color: #888 !important;
+    font-size: 1.3rem !important;
+    cursor: pointer;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.modal-fechar:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: none !important;
+}
+
+.modal-filtros {
+    padding: 10px 14px;
+    border-bottom: 1px solid #2a2a3a;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex-shrink: 0;
+    background: #141422;
+}
+
+.perigo-input-busca {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #3a3a5a;
+    background: #0e0e1e;
+    color: #e0e0f0;
+    font-size: 0.88rem;
+    box-sizing: border-box;
+}
+
+.perigo-input-busca:focus {
+    outline: none;
+    border-color: #f0d080;
+}
+
+.perigo-selects {
+    display: flex;
+    gap: 8px;
+}
+
+.perigo-select {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 7px;
+    border: 1px solid #3a3a5a;
+    background: #0e0e1e;
+    color: #c0c0e0;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+/* Two-panel body */
+.modal-corpo {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.perigo-lista {
+    width: 280px;
+    min-width: 200px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border-right: 1px solid #2a2a3a;
+    background: #10101e;
+}
+
+.perigo-item {
+    background: #14142a;
+    border: 1px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 9px 11px;
+    cursor: pointer;
+    transition: all 0.14s;
+}
+
+.perigo-item:hover {
+    border-color: #f0d08088;
+    background: #1a183a;
+}
+
+.perigo-item.selecionado {
+    border-color: #f0d080;
+    background: #221f0e;
+    box-shadow: 0 0 0 2px #f0d08044;
+}
+
+.perigo-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.perigo-item-nome {
+    color: #e8d070;
+    font-family: "Tormenta", serif;
+    font-size: 0.88rem;
+    line-height: 1.3;
+}
+
+.perigo-item-tags {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.perigo-item-sub {
+    font-size: 0.66rem;
+    color: #505070;
+    margin-top: 3px;
+    font-style: italic;
+}
+
+/* Preview panel */
+.perigo-preview-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    min-width: 0;
+    background: #12121e;
+}
+
+.perigo-preview-vazio {
+    color: #383858;
+    font-style: italic;
+    padding: 50px 20px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.perigo-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #2a2a4a;
+}
+
+.perigo-preview-nome {
+    font-family: "Tormenta", serif;
+    font-size: 1.15rem;
+    color: #f0d080;
+    display: block;
+    margin-bottom: 7px;
+}
+
+.perigo-preview-img {
+    width: 130px;
+    height: 85px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    border: 1px solid #2a2a4a;
+}
+
+.perigo-preview-efeito {
+    font-size: 0.82rem;
+    color: #b8b8d0;
+    line-height: 1.7;
+    margin-bottom: 16px;
+}
+
+.perigo-preview-efeito strong {
+    color: #e8d070;
+}
+
+.perigo-preview-efeito em {
+    color: #90ccff;
+}
+
+.perigo-preview-efeito h6 {
+    color: #e0483f;
+    margin: 10px 0 4px;
+    font-size: 0.82rem;
     font-weight: bold;
 }
 
+.perigo-preview-efeito hr {
+    border: none;
+    border-top: 1px solid #2a2a4a;
+    margin: 10px 0;
+}
+
+.perigo-preview-efeito ul {
+    margin: 4px 0;
+    padding-left: 16px;
+}
+
+.perigo-preview-efeito li {
+    margin-bottom: 3px;
+}
+
+.btn-confirmar-perigo {
+    width: 100%;
+    padding: 11px !important;
+    background: linear-gradient(135deg, #4a3a00, #7a6000) !important;
+    color: #ffe87a !important;
+    border: 1px solid #9a8000 !important;
+    border-radius: 8px !important;
+    font-family: "Tormenta", serif !important;
+    font-size: 1rem !important;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+}
+
+.btn-confirmar-perigo:hover {
+    background: linear-gradient(135deg, #7a6000, #9a8000) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 16px rgba(150, 130, 0, 0.35);
+}
+
+.perigo-empty {
+    text-align: center;
+    color: #383850;
+    padding: 30px 8px;
+    font-style: italic;
+    font-size: 0.82rem;
+}
+
+.modal-footer {
+    padding: 9px 18px;
+    border-top: 1px solid #2a2a3a;
+    background: #0c0c1a;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.link-perigos-externo {
+    font-size: 0.76rem;
+    color: #5070b0;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.link-perigos-externo:hover {
+    color: #90b0ff;
+}
+
+/* Insert tesouro to plot button */
+.btn-inserir-tesouro-plot {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #c8e6a0 !important;
+    border: 1px solid #3a6a20 !important;
+    border-radius: 5px !important;
+    font-size: 0.73rem !important;
+    padding: 4px 8px !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    cursor: pointer;
+    font-family: system-ui, sans-serif !important;
+    white-space: nowrap;
+    transition: all 0.18s;
+}
+
+.btn-inserir-tesouro-plot:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    border-color: #5a9a30 !important;
+    transform: none !important;
+}
+
 @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @media (max-width: 700px) {
-    .tesouro-controles { gap: 6px; }
-    .btn-rolar-tesouro { font-size: 0.8rem !important; padding: 5px 10px !important; }
+
+    .perigo-controles,
+    .tesouro-controles {
+        gap: 6px;
+    }
+
+    .perigo-selects {
+        flex-direction: column;
+    }
+
+    .modal-corpo {
+        flex-direction: column;
+    }
+
+    .perigo-lista {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #2a2a3a;
+        max-height: 180px;
+    }
+
+    .perigo-preview-panel {
+        max-height: 280px;
+    }
+
+    .perigo-preview-img {
+        width: 80px;
+        height: 55px;
+    }
+
+    .modal-box {
+        max-height: 95vh;
+        border-radius: 10px;
+    }
+
+    .perigo-mini-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Painel lateral recolhível */
+.tesouro-section,
+.perigo-section {
+    transition: width 0.28s ease, opacity 0.25s ease, padding 0.28s ease;
+    overflow: hidden;
+    width: 240px;
+    min-width: 240px;
+}
+
+.tesouro-section.recolhido,
+.perigo-section.recolhido {
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.btn-toggle-painel {
+    background: rgba(0, 75, 236, 0.865) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #aaa !important;
+    font-size: 0.7rem !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    cursor: pointer;
+    font-family: system-ui, sans-serif !important;
+    transition: all 0.2s;
+    line-height: 1.4;
+}
+
+.btn-toggle-painel:hover {
+    background: rgba(0, 0, 0, 0.14) !important;
+    color: #fc0000 !important;
+    /* Inverte o ícone horizontalmente */
+    transform: scaleX(-1) !important;
+    /* Garante que a transição seja suave se houver transition no estado normal */
+    display: inline-block;
 }
