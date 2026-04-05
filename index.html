@@ -135,6 +135,74 @@
     <!-- Toast notifications -->
     <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 
+    <!-- Modal de Perigos Complexos -->
+    <div id="modalPerigos" style="display:none;" class="modal-overlay"
+        onclick="if(event.target===this)fecharModalPerigos()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 class="modal-titulo">⚠️ Perigos Complexos</h2>
+                <button class="modal-fechar" onclick="fecharModalPerigos()" aria-label="Fechar">✕</button>
+            </div>
+            <div class="modal-filtros">
+                <input type="text" id="perigoSearch" placeholder="🔍 Buscar por nome, tipo, fonte..."
+                    oninput="renderizarListaPerigos()" class="perigo-input-busca">
+                <div class="perigo-selects">
+                    <select id="perigoFiltroND" onchange="renderizarListaPerigos()" class="perigo-select">
+                        <option value="">Todos os NDs</option>
+                        <option value="1/2">ND ½</option>
+                        <option value="1">ND 1</option>
+                        <option value="2">ND 2</option>
+                        <option value="3">ND 3</option>
+                        <option value="4">ND 4</option>
+                        <option value="5">ND 5</option>
+                        <option value="6">ND 6</option>
+                        <option value="7">ND 7</option>
+                        <option value="8">ND 8</option>
+                        <option value="9">ND 9</option>
+                        <option value="10">ND 10</option>
+                        <option value="11">ND 11</option>
+                        <option value="12">ND 12</option>
+                        <option value="14">ND 14</option>
+                        <option value="15">ND 15</option>
+                        <option value="16">ND 16</option>
+                        <option value="17">ND 17</option>
+                        <option value="20">ND 20</option>
+                        <option value="3 a 11">ND 3 a 11</option>
+                    </select>
+                    <select id="perigoFiltroTipo" onchange="renderizarListaPerigos()" class="perigo-select">
+                        <option value="">Todos os Tipos</option>
+                        <option>Armadilha de Masmorra</option>
+                        <option>Ameaça de Masmorra</option>
+                        <option>Desastre Natural</option>
+                        <option>Desastre Urbano</option>
+                        <option>Desastre em Viagem</option>
+                        <option>Desafio Social</option>
+                        <option>Desafio</option>
+                        <option>Viagem</option>
+                        <option>Fuga</option>
+                        <option>Perigo Ambiental</option>
+                        <option>Fenômeno Mágico</option>
+                        <option>Exploração de Masmorra</option>
+                        <option>Exploração Perigosa</option>
+                        <option>Missão de Salvamento</option>
+                        <option>Perseguição Dimensional</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-corpo">
+                <div id="perigoLista" class="perigo-lista"></div>
+                <div id="perigoPreviewPanel" class="perigo-preview-panel">
+                    <div class="perigo-preview-vazio">← Clique em um perigo para ver os detalhes</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="https://nicholemos.github.io/perigos" target="_blank" class="link-perigos-externo">
+                    🔗 Ver todos em nicholemos.github.io/perigos
+                </a>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 
