@@ -684,6 +684,7 @@ button {
     text-overflow: ellipsis;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 5px;
+    cursor: grab;
 }
 
 .tab-titulo small {
@@ -1842,7 +1843,7 @@ button {
     }
 }
 
-/* Painel lateral recolhível */
+/* Painel lateral recolhível — desktop */
 .tesouro-section,
 .perigo-section {
     transition: width 0.28s ease, opacity 0.25s ease, padding 0.28s ease;
@@ -1863,7 +1864,7 @@ button {
 .btn-toggle-painel {
     background: rgba(0, 75, 236, 0.865) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    color: #aaa !important;
+    color: #fff !important;
     font-size: 0.7rem !important;
     padding: 2px 6px !important;
     border-radius: 4px !important;
@@ -1877,10 +1878,64 @@ button {
 }
 
 .btn-toggle-painel:hover {
-    background: rgba(0, 0, 0, 0.14) !important;
-    color: #fc0000 !important;
-    /* Inverte o ícone horizontalmente */
-    transform: scaleX(-1) !important;
-    /* Garante que a transição seja suave se houver transition no estado normal */
-    display: inline-block;
+    filter: brightness(1.2) !important;
+    transform: none !important;
+}
+
+/* ===== MOBILE: cards em coluna, painéis full-width abaixo ===== */
+@media (max-width: 700px) {
+
+    /* Card vira coluna — painel desce para baixo */
+    .cena-card {
+        flex-direction: column;
+    }
+
+    .tesouro-section,
+    .perigo-section {
+        width: 100% !important;
+        min-width: 0 !important;
+        border-radius: 0 0 var(--radius) var(--radius);
+        border-top: 1px solid rgba(255,255,255,0.1);
+        /* Mantém a animação de recolher mas em altura */
+        transition: max-height 0.3s ease, opacity 0.25s ease, padding 0.25s ease;
+        max-height: 600px;
+    }
+
+    .tesouro-section.recolhido,
+    .perigo-section.recolhido {
+        width: 100% !important;
+        max-height: 0 !important;
+        padding: 0 !important;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Esconde o botão toggle no mobile (painéis sempre visíveis ou colapsam por altura) */
+    .btn-toggle-painel {
+        display: none !important;
+    }
+
+    /* Botões da campanha: área de toque maior no mobile */
+    .tab-btns {
+        gap: 8px;
+    }
+
+    .tab-btns button {
+        height: 44px !important;
+        min-height: 44px !important;
+        font-size: 1.1rem !important;
+        touch-action: manipulation;
+    }
+
+    /* Tab de missão: largura mínima razoável para mobile */
+    .tab-missao {
+        min-width: 140px;
+        max-width: 200px;
+    }
+
+    /* Cursor de drag no título (único elemento arrastável) */
+    .tab-titulo {
+        cursor: grab;
+        touch-action: none;
+    }
 }
