@@ -88,10 +88,11 @@ window.onload = () => {
     carregarDados();
     carregarCampanha();
 
-    // Sortable para as Abas da Campanha
+    // Sortable para as Abas da Campanha — handle só no título para não bloquear botões
     const abasEl = document.getElementById('abasCampanha');
     Sortable.create(abasEl, {
         animation: 150,
+        handle: '.tab-titulo',
         onEnd: () => {
             const novasAbas = Array.from(abasEl.children).map(el => el.dataset.id);
             campanha.sort((a, b) => novasAbas.indexOf(a.idCampanha) - novasAbas.indexOf(b.idCampanha));
