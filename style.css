@@ -1895,7 +1895,7 @@ button {
         width: 100% !important;
         min-width: 0 !important;
         border-radius: 0 0 var(--radius) var(--radius);
-        border-top: 1px solid rgba(255,255,255,0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
         /* Mantém a animação de recolher mas em altura */
         transition: max-height 0.3s ease, opacity 0.25s ease, padding 0.25s ease;
         max-height: 600px;
@@ -1938,4 +1938,387 @@ button {
         cursor: grab;
         touch-action: none;
     }
+}
+
+/* ===== BIBLIOTECA: SEÇÕES (FICHAS / AMEAÇAS) ===== */
+.biblioteca-secao {
+    margin-bottom: 10px;
+}
+
+.biblioteca-secao-titulo {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8a9aaa;
+    margin-bottom: 6px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* ===== BADGE DE AMEAÇA (variante do ficha-badge) ===== */
+.ficha-badge-ameaca {
+    background: linear-gradient(135deg, #06402B 0%, #3f2535 100%) !important;
+}
+
+/* ===== SELEÇÃO MÚLTIPLA: CHECKBOX SOBRE O BADGE ===== */
+.ficha-check-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.ficha-checkbox {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    accent-color: var(--str-accent);
+    cursor: pointer;
+}
+
+.ficha-badge.ficha-selecionada {
+    outline: 2px solid var(--str-accent);
+    outline-offset: 1px;
+    box-shadow: 0 0 0 3px rgba(224, 72, 63, 0.18);
+    /* Aplica uma camada preta de 40% de opacidade por cima do fundo original */
+    background-image: linear-gradient(rgba(255, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+        linear-gradient(135deg, #1a2a35 0%, #2f3f4f 100%) !important;
+}
+
+.ficha-badge:hover {
+    border-color: var(--str-accent);
+    cursor: pointer;
+    filter: brightness(1.1);
+}
+
+/* ===== BOTÕES IMPORTAR AMEAÇAS ===== */
+#btnImportarAmeacaT20 {
+    background: linear-gradient(135deg, #5a1a1a, #7a2a2a);
+    border: 1px solid #8a3030;
+    flex: 0 1 auto;
+    min-width: 0;
+    font-size: 0.9rem;
+    padding: 8px 14px;
+}
+
+#btnImportarAmeacaT20:hover {
+    background: linear-gradient(135deg, #7a2a2a, #9a3a3a) !important;
+}
+
+#btnImportarAmeacaFoundry {
+    background: linear-gradient(135deg, #1a2a5a, #2a3a7a);
+    border: 1px solid #3a4a8a;
+    flex: 0 1 auto;
+    min-width: 0;
+    font-size: 0.9rem;
+    padding: 8px 14px;
+}
+
+#btnImportarAmeacaFoundry:hover {
+    background: linear-gradient(135deg, #2a3a7a, #3a4a9a) !important;
+}
+
+/* ===== BOTÃO COLAR SELECIONADAS (nas cenas) ===== */
+.btn-inserir-ficha {
+    background: linear-gradient(135deg, #1a2a35, #2f3f4f) !important;
+    color: #aac4d8 !important;
+    border: 1px dashed #4a6a7f !important;
+    border-radius: 6px !important;
+    font-size: 0.82rem !important;
+    padding: 6px 12px !important;
+    cursor: pointer;
+    text-align: center !important;
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    transition: all 0.2s;
+    font-family: system-ui, sans-serif !important;
+}
+
+.btn-inserir-ficha:hover {
+    background: linear-gradient(135deg, #2f3f4f, #3a5a6f) !important;
+    color: #fff !important;
+    border-color: #6a9ab8 !important;
+    transform: none !important;
+}
+
+
+.biblioteca-controles-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.links-criacao-row,
+.botoes-importacao-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Garante que os links ocupem a largura necessária e fiquem centralizados se quiser */
+.links-criacao-row {
+    margin-bottom: 5px;
+}
+
+
+/* =========================
+   ASSINATURA / CRÉDITOS (STR-style)
+   ========================= */
+
+.sig-wrap {
+  max-width: 1100px;
+  margin: 28px auto 40px;
+  padding: 0 16px;
+}
+
+.sig-card {
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, .12);
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+  overflow: hidden;
+}
+
+.sig-summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 18px;
+  background: #2f3f4f;
+  /* header STR */
+  color: #ffffff;
+  position: relative;
+}
+
+.sig-summary::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: #e0483f;
+  /* faixa vermelha */
+}
+
+.sig-summary::-webkit-details-marker {
+  display: none;
+}
+
+.sig-summary-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sig-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .14);
+  border: 1px solid rgba(255, 255, 255, .22);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+
+.sig-title {
+  font-size: 16px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sig-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: .95;
+}
+
+.sig-hint {
+  font-size: 12px;
+  opacity: .85;
+  white-space: nowrap;
+}
+
+.sig-chevron {
+  font-size: 16px;
+  transition: transform .18s ease;
+}
+
+.sig-card[open] .sig-chevron {
+  transform: rotate(180deg);
+}
+
+.sig-body {
+  padding: 18px;
+  background: #f6f7fb;
+  /* leve cinza como card do STR */
+}
+
+.sig-hero {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, .10);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .06);
+  margin-bottom: 14px;
+}
+
+.sig-h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.sig-p {
+  margin: 0 0 10px;
+  color: rgba(15, 23, 42, .86);
+  line-height: 1.45;
+}
+
+.sig-grid {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .sig-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sig-hint {
+    display: none;
+  }
+}
+
+.sig-col {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, .10);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .06);
+}
+
+.sig-h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+}
+
+.sig-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, .10);
+  text-decoration: none;
+  background: #ffffff;
+  transition: transform .08s ease, box-shadow .12s ease, border-color .12s ease;
+  margin-bottom: 10px;
+}
+
+.sig-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, .08);
+  border-color: rgba(0, 0, 0, .16);
+}
+
+.sig-link:active {
+  transform: translateY(0px);
+}
+
+.sig-link-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sig-link-name {
+  font-weight: 900;
+  color: #0f172a;
+  font-size: 14px;
+  line-height: 1.15;
+}
+
+.sig-link-url {
+  color: rgba(15, 23, 42, .62);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sig-ext {
+  color: rgba(15, 23, 42, .55);
+  font-size: 16px;
+  flex: 0 0 auto;
+}
+
+.sig-link-primary {
+  border-color: rgba(224, 72, 63, .35);
+  box-shadow: 0 10px 20px rgba(224, 72, 63, .10);
+}
+
+.sig-link-primary:hover {
+  border-color: rgba(224, 72, 63, .55);
+  box-shadow: 0 14px 24px rgba(224, 72, 63, .14);
+}
+
+.sig-note {
+  margin-top: 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(0, 0, 0, .16);
+  background: rgba(47, 63, 79, .04);
+  padding: 12px;
+}
+
+.sig-note-title {
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, .72);
+  margin-bottom: 6px;
+}
+
+.sig-note-text {
+  color: rgba(15, 23, 42, .78);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.sig-footer {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, .10);
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+}
+
+.sig-footer-text {
+  color: rgba(15, 23, 42, .68);
+  font-size: 12px;
 }
