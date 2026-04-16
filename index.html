@@ -77,12 +77,19 @@
                     <span class="tooltip-icon" tabindex="0"
                         aria-label="Importe várias fichas JSON. Elas ficarão salvas para você escolher qual inserir em cada cena.">?</span>
                 </label>
-                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                    <a href="https://nicholemos.github.io/ficha" target="_blank" class="link-ficha-modelo"
-                        title="Abrir criador de fichas T20 em nova aba">📝 Criar ficha</a>
-                    <button id="btnImportarFicha" onclick="importarFicha()" title="Adicionar ficha à biblioteca">
-                        🧙 Adicionar Ficha
-                    </button>
+                <div class="biblioteca-controles-wrapper">
+                    <div class="links-criacao-row">
+                        <a href="https://nicholemos.github.io/ficha" target="_blank" class="link-ficha-modelo">📝 Criar
+                            ficha</a>
+                        <a href="https://fichasdenimb.com.br/gerador-ameacas" target="_blank"
+                            class="link-ficha-modelo">📝 Criar ameaça Fichas de Nimb</a>
+                    </div>
+                    <div class="botoes-importacao-row">
+                        <button id="btnImportarFicha" onclick="importarFicha()">🧙 Ficha T20</button>
+                        <button id="btnImportarAmeacaT20" onclick="importarAmeacaT20()">🩸 Ameaça T20</button>
+                        <button id="btnImportarAmeacaFoundry" onclick="importarAmeacaFoundry()">🎲 Ameaça
+                            Foundry</button>
+                    </div>
                 </div>
             </div>
             <div id="listaFichasBiblioteca" class="ficha-list-container">
