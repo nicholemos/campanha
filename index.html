@@ -57,9 +57,15 @@
                         <button class="btn-add" onclick="adicionarCena('Boss')"
                             title="Confronto final com vilão ou monstro lendário" aria-label="Adicionar cena de boss">+
                             Boss</button>
+                        <button class="btn-add btn-add-nota" onclick="adicionarCena('Anotacao')"
+                            title="Bloco de anotações livre, não conta como cena" aria-label="Adicionar anotação">+
+                            Nota</button>
                     </div>
                 </div>
-
+                <div class="input-group" style="flex: 0 0 auto;">
+                    <label>Estrutura:</label>
+                    <button class="btn-add-parte" onclick="adicionarParte()" title="Agrupa cenas em uma nova parte da aventura">📑 + Parte</button>
+                </div>
             </div>
             <div class="btn-group" style="flex: 0 1 auto; gap: 10px;">
                 <button id="btnCopiar" onclick="copiarResumo()"

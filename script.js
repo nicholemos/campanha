@@ -1,4 +1,5 @@
 let cenasAtuais = [];
+let partes = [];           // [{ id, nome, collapsed }]
 let campanha = [];
 let bibliotecaFichas = [];
 let bibliotecaAmeacas = [];
@@ -101,19 +102,41 @@ window.onload = () => {
       localStorage.setItem('t20_campanha', JSON.stringify(campanha));
     }
   });
-
-  const el = document.getElementById('listaCenas');
-  Sortable.create(el, {
-    handle: '.drag-handle',
-    animation: 150,
-    onEnd: function (evt) {
-      const item = cenasAtuais.splice(evt.oldIndex, 1)[0];
-      cenasAtuais.splice(evt.newIndex, 0, item);
-      renderizar();
-      salvarDados();
-    }
-  });
+  // Sortable de cenas é inicializado dentro de renderizar()
 };
+
+// Inicializa Sortable em todos os containers de cenas (por parte)
+function inicializarSortables() {
+  const containers = document.querySelectorAll('.parte-cenas-container');
+  containers.forEach(container => {
+    Sortable.create(container, {
+      group: { name: 'cenas', pull: true, put: true },
+      handle: '.drag-handle',
+      animation: 150,
+      onEnd: function (evt) {
+        const cenaId = evt.item.dataset.cenaId;
+        const novaParteId = evt.to.dataset.parteId || null;
+        const cena = cenasAtuais.find(c => c.id === cenaId);
+        if (cena) cena.parteId = novaParteId || null;
+
+        // Reordena cenasAtuais para refletir a nova ordem visual
+        const novaOrdem = [];
+        document.querySelectorAll('.parte-cenas-container').forEach(cont => {
+          Array.from(cont.children).forEach(card => {
+            const c = cenasAtuais.find(x => x.id === card.dataset.cenaId);
+            if (c) novaOrdem.push(c);
+          });
+        });
+        // Inclui cenas que ficaram de fora (não deveriam existir, mas por segurança)
+        cenasAtuais.forEach(c => { if (!novaOrdem.find(x => x.id === c.id)) novaOrdem.push(c); });
+        cenasAtuais = novaOrdem;
+
+        salvarDados();
+        renderizar();
+      }
+    });
+  });
+}
 
 function calcularDificuldades(nivel) {
   const n = parseInt(nivel);
@@ -141,13 +164,39 @@ function copiarResumo() {
   let textoResumo = `📜 MISSÃO T20 - NÍVEL ${document.getElementById('selectNivel').value}\n`;
   textoResumo += `Intensidade: ${calcularDesgaste().texto}\n-----------------------------------\n`;
 
-  cenasAtuais.forEach((cena, index) => {
-    const select = document.querySelector(`select[data-id="${cena.id}"]`);
-    const difLabel = select ? select.options[select.selectedIndex].text : "";
-    textoResumo += `\nCENA ${index + 1}: ${cena.titulo.toUpperCase()} (${cena.tipo})\nDificuldade: ${difLabel}\n`;
-    if (cena.plot) textoResumo += `Enredo: ${cena.plot}\n`;
-    textoResumo += `-----------------------------------\n`;
-  });
+  if (partes.length > 0) {
+    partes.forEach((parte, pi) => {
+      const cenasDaParte = cenasAtuais.filter(c => c.parteId === parte.id);
+      const dp = calcularDesgaste(cenasDaParte);
+      textoResumo += `\n═══ ${parte.nome.toUpperCase()} (${dp.texto}) ═══\n`;
+      cenasDaParte.forEach((cena) => {
+        const select = document.querySelector(`select[data-id="${cena.id}"]`);
+        const difLabel = select ? select.options[select.selectedIndex].text : "";
+        textoResumo += `\nCENA: ${cena.titulo.toUpperCase()} (${cena.tipo})\nDificuldade: ${difLabel}\n`;
+        if (cena.plot) textoResumo += `Enredo: ${cena.plot}\n`;
+        textoResumo += `-----------------------------------\n`;
+      });
+    });
+    const orphans = cenasAtuais.filter(c => !c.parteId || !partes.find(p => p.id === c.parteId));
+    if (orphans.length > 0) {
+      textoResumo += `\n═══ SEM PARTE ═══\n`;
+      orphans.forEach(cena => {
+        const select = document.querySelector(`select[data-id="${cena.id}"]`);
+        const difLabel = select ? select.options[select.selectedIndex].text : "";
+        textoResumo += `\nCENA: ${cena.titulo.toUpperCase()} (${cena.tipo})\nDificuldade: ${difLabel}\n`;
+        if (cena.plot) textoResumo += `Enredo: ${cena.plot}\n`;
+        textoResumo += `-----------------------------------\n`;
+      });
+    }
+  } else {
+    cenasAtuais.forEach((cena, index) => {
+      const select = document.querySelector(`select[data-id="${cena.id}"]`);
+      const difLabel = select ? select.options[select.selectedIndex].text : "";
+      textoResumo += `\nCENA ${index + 1}: ${cena.titulo.toUpperCase()} (${cena.tipo})\nDificuldade: ${difLabel}\n`;
+      if (cena.plot) textoResumo += `Enredo: ${cena.plot}\n`;
+      textoResumo += `-----------------------------------\n`;
+    });
+  }
 
   navigator.clipboard.writeText(textoResumo).then(() => {
     const btn = document.getElementById('btnCopiar');
@@ -168,36 +217,123 @@ function renderizar() {
   const container = document.getElementById('listaCenas');
   container.innerHTML = '';
 
-  cenasAtuais.forEach((cena, index) => {
-    const card = document.createElement('div');
-    card.className = `cena-card border-${cena.tipo.toLowerCase()}`;
-    card.dataset.cenaId = cena.id;
-    const dSel = cena.dificuldadeSelecionada;
-    let opcoes = "";
+  // ── Modo com Partes ──────────────────────────────────────────────────────
+  if (partes.length > 0) {
+    partes.forEach((parte, parteIdx) => {
+      const cenasDaParte = cenasAtuais.filter(c => c.parteId === parte.id);
+      const desgasteParte = calcularDesgaste(cenasDaParte);
+      const nivelLabel = ['Tranquila', 'Moderada', 'Perigosa', 'Letal'];
+      const nivelIdx = nivelLabel.indexOf(desgasteParte.texto) + 1;
+      const pontosHtml = [1,2,3,4].map(i =>
+        `<span class="intensidade-ponto ${i <= nivelIdx ? 'ativo' : ''}"></span>`
+      ).join('');
 
-    // Lógica de Dificuldade (Combate, Boss ou Social/Exploração)
-    if (cena.tipo === 'Combate') {
-      opcoes = `<option value="cFacil" ${dSel === 'cFacil' ? 'selected' : ''}>Fácil (ND ${dif.cFacil})</option>
-                      <option value="cNormal" ${dSel === 'cNormal' ? 'selected' : ''}>Normal (ND ${dif.cNormal})</option>
-                      <option value="cDificil" ${dSel === 'cDificil' ? 'selected' : ''}>Difícil (ND ${dif.cDificil})</option>`;
-    } else if (cena.tipo === 'Boss') {
-      opcoes = `<option value="bFacil" ${dSel === 'bFacil' ? 'selected' : ''}>Fácil (ND ${dif.bFacil})</option>
-                      <option value="bNormal" ${dSel === 'bNormal' ? 'selected' : ''}>Normal (ND ${dif.bNormal})</option>
-                      <option value="bDificil" ${dSel === 'bDificil' ? 'selected' : ''}>Difícil (ND ${dif.bDificil})</option>`;
-    } else {
-      opcoes = `<option value="rotineiro" ${dSel === 'rotineiro' ? 'selected' : ''}>Rotineiro (CD ${dif.rotineiro})</option>
-                      <option value="complexo" ${dSel === 'complexo' ? 'selected' : ''}>Complexo (CD ${dif.complexo})</option>
-                      <option value="dificil" ${dSel === 'dificil' ? 'selected' : ''}>Difícil (CD ${dif.dificil})</option>`;
+      const parteEl = document.createElement('div');
+      parteEl.className = 'parte-wrapper';
+      parteEl.dataset.parteId = parte.id;
+
+      const isCollapsed = parte.collapsed ? 'collapsed' : '';
+
+      parteEl.innerHTML = `
+        <div class="parte-header" onclick="toggleCollapseParte('${parte.id}')">
+          <div class="parte-header-left">
+            <span class="parte-chevron ${isCollapsed ? 'collapsed' : ''}">❯</span>
+            <input type="text" 
+                   class="parte-nome-input" 
+                   value="${parte.nome.replace(/"/g, '&quot;')}" 
+                   onchange="editarNomeParte('${parte.id}', this.value)"
+                   onclick="event.stopPropagation()"
+                   placeholder="Nome da Parte...">
+          </div>
+          <div class="parte-header-right">
+            <span class="parte-stat-badge" style="background:${desgasteParte.cor}22; color:${desgasteParte.cor}; border:1px solid ${desgasteParte.cor}55;">
+              ${desgasteParte.texto} <span style="opacity:.6; font-size:.7rem;">(${cenasDaParte.length} cena${cenasDaParte.length !== 1 ? 's' : ''})</span>
+              <span class="intensidade-pontos" style="margin-left:4px;">${pontosHtml}</span>
+            </span>
+            <button class="btn-remover-parte" onclick="removerParte('${parte.id}'); event.stopPropagation()" title="Remover parte">×</button>
+          </div>
+        </div>
+        <div class="parte-cenas-container ${isCollapsed}" data-parte-id="${parte.id}" id="parte-cenas-${parte.id}"></div>
+      `;
+      container.appendChild(parteEl);
+
+      // Preenche o container de cenas desta parte
+      const cenasContainer = parteEl.querySelector('.parte-cenas-container');
+      cenasDaParte.forEach((cena, index) => {
+        cenasContainer.appendChild(criarCardCena(cena, cenasAtuais.indexOf(cena), dif));
+      });
+    });
+
+    // Cenas sem parte (orphans) – aparecem no fim com cabeçalho especial
+    const orphans = cenasAtuais.filter(c => !c.parteId || !partes.find(p => p.id === c.parteId));
+    if (orphans.length > 0) {
+      const orphanWrapper = document.createElement('div');
+      orphanWrapper.className = 'parte-wrapper parte-wrapper-orphan';
+      orphanWrapper.innerHTML = `
+        <div class="parte-header parte-header-orphan">
+          <span style="opacity:.6; font-size:.8rem;">📦 Cenas sem parte</span>
+        </div>
+        <div class="parte-cenas-container" data-parte-id="" id="parte-cenas-orphan"></div>
+      `;
+      container.appendChild(orphanWrapper);
+      const orphanContainer = orphanWrapper.querySelector('.parte-cenas-container');
+      orphans.forEach(cena => {
+        orphanContainer.appendChild(criarCardCena(cena, cenasAtuais.indexOf(cena), dif));
+      });
     }
 
-    // NOVO: Sistema de seleção múltipla pela biblioteca
-    const totalLib = bibliotecaFichas.length + bibliotecaAmeacas.length;
-    const nSel = fichasSelecionadas.size;
-    const selectFichasHtml = totalLib > 0
-      ? `<div class="inserir-ficha-wrap" onclick="event.stopPropagation()">
-                <button class="btn-inserir-ficha" onclick="colarSelecionadasNoPlot('${cena.id}')">🧙 ${nSel > 0 ? 'Colar Selecionadas (' + nSel + ')' : 'Colar Selecionadas'}</button>
-               </div>`
-      : '<small style="color:#888; display:block; margin-bottom:10px;">Importe fichas na biblioteca para colar aqui.</small>';
+  // ── Modo sem Partes (comportamento original) ─────────────────────────────
+  } else {
+    const simpleWrapper = document.createElement('div');
+    simpleWrapper.className = 'parte-cenas-container';
+    simpleWrapper.dataset.parteId = '';
+    container.appendChild(simpleWrapper);
+    cenasAtuais.forEach((cena, index) => {
+      simpleWrapper.appendChild(criarCardCena(cena, index, dif));
+    });
+  }
+
+  inicializarSortables();
+  atualizarResumo();
+}
+
+// Cria o card de uma cena (extraído de renderizar para reutilização)
+function criarCardCena(cena, index, dif) {
+  const card = document.createElement('div');
+  card.className = `cena-card border-${cena.tipo.toLowerCase()}`;
+  card.dataset.cenaId = cena.id;
+  const dSel = cena.dificuldadeSelecionada;
+  let opcoes = "";
+
+  if (cena.tipo === 'Combate') {
+    opcoes = `<option value="cFacil" ${dSel === 'cFacil' ? 'selected' : ''}>Fácil (ND ${dif.cFacil})</option>
+                    <option value="cNormal" ${dSel === 'cNormal' ? 'selected' : ''}>Normal (ND ${dif.cNormal})</option>
+                    <option value="cDificil" ${dSel === 'cDificil' ? 'selected' : ''}>Difícil (ND ${dif.cDificil})</option>`;
+  } else if (cena.tipo === 'Boss') {
+    opcoes = `<option value="bFacil" ${dSel === 'bFacil' ? 'selected' : ''}>Fácil (ND ${dif.bFacil})</option>
+                    <option value="bNormal" ${dSel === 'bNormal' ? 'selected' : ''}>Normal (ND ${dif.bNormal})</option>
+                    <option value="bDificil" ${dSel === 'bDificil' ? 'selected' : ''}>Difícil (ND ${dif.bDificil})</option>`;
+  } else {
+    opcoes = `<option value="rotineiro" ${dSel === 'rotineiro' ? 'selected' : ''}>Rotineiro (CD ${dif.rotineiro})</option>
+                    <option value="complexo" ${dSel === 'complexo' ? 'selected' : ''}>Complexo (CD ${dif.complexo})</option>
+                    <option value="dificil" ${dSel === 'dificil' ? 'selected' : ''}>Difícil (CD ${dif.dificil})</option>`;
+  }
+
+  // Dropdown de mover para parte (só aparece quando há partes)
+  const moverParteHtml = partes.length > 0 ? `
+    <select class="select-mover-parte" onchange="moverCenaParaParte('${cena.id}', this.value)" onclick="event.stopPropagation()" title="Mover para parte">
+      <option value="">📦 Sem parte</option>
+      ${partes.map(p => `<option value="${p.id}" ${cena.parteId === p.id ? 'selected' : ''}>${p.nome.substring(0,22)}</option>`).join('')}
+    </select>` : '';
+
+  // Botão colar selecionadas
+  const totalLib = bibliotecaFichas.length + bibliotecaAmeacas.length;
+  const nSel = fichasSelecionadas.size;
+  const selectFichasHtml = totalLib > 0
+    ? `<div class="inserir-ficha-wrap" onclick="event.stopPropagation()">
+              <button class="btn-inserir-ficha" onclick="colarSelecionadasNoPlot('${cena.id}')">🧙 ${nSel > 0 ? 'Colar Selecionadas (' + nSel + ')' : 'Colar Selecionadas'}</button>
+             </div>`
+    : '<small style="color:#888; display:block; margin-bottom:10px;">Importe fichas na biblioteca para colar aqui.</small>';
 
     card.innerHTML = `
             <div class="drag-handle">⠿</div>
@@ -211,10 +347,10 @@ function renderizar() {
                         </div>
                     </div>
                     <div class="cena-actions" onclick="event.stopPropagation()">
-    ${(cena.tipo === 'Combate' || cena.tipo === 'Boss' || cena.tipo === 'Exploracao' || cena.tipo === 'Interpretacao') ? `<button class="btn-toggle-painel" onclick="togglePainel('${cena.id}')" title="Recolher/expandir painel lateral">◀</button>` : ''}
-    <select data-id="${cena.id}" onchange="mudarDificuldadeCena('${cena.id}', this.value)" class="select-dificuldade">
+    ${moverParteHtml}
+    ${cena.tipo !== 'Anotacao' ? `<select data-id="${cena.id}" onchange="mudarDificuldadeCena('${cena.id}', this.value)" class="select-dificuldade">
                             ${opcoes}
-                        </select>
+                        </select>` : ''}
                         <button onclick="removerCena('${cena.id}')" class="btn-remover">×</button>
                     </div>
                 </div>
@@ -245,8 +381,8 @@ function renderizar() {
                             <div id="img-upload-${cena.id}" class="imagem-aba ${cena.imagemBase64 ? 'ativa' : ''}">
                                 <div class="upload-area" onclick="triggerUploadImagem('${cena.id}'); event.stopPropagation()">
                                     ${cena.imagemBase64
-        ? `<span>✅ Imagem carregada · <span class="upload-trocar">Clique para trocar</span></span>`
-        : `<span>📁 Clique para selecionar imagem do seu computador</span>`}
+      ? `<span>✅ Imagem carregada · <span class="upload-trocar">Clique para trocar</span></span>`
+      : `<span>📁 Clique para selecionar imagem do seu computador</span>`}
                                 </div>
                                 <input type="file" id="file-img-${cena.id}" accept="image/*" style="display:none"
                                     onchange="salvarImagemLocal('${cena.id}', this)" onclick="event.stopPropagation()">
@@ -266,7 +402,10 @@ function renderizar() {
                 </div>
             </div>
             ${(cena.tipo === 'Combate' || cena.tipo === 'Boss') ? `
-            <div class="tesouro-section" onclick="event.stopPropagation()">
+            <button class="btn-paredinha" onclick="togglePainel('${cena.id}'); event.stopPropagation()" title="Tesouro">
+                <span class="paredinha-icon recolhido-icon">◀</span>
+            </button>
+            <div class="tesouro-section recolhido" onclick="event.stopPropagation()">
                 <div class="tesouro-controles">
                     <span class="tesouro-label">🏆 Tesouro:</span>
                     <select id="tesouro-mod-${cena.id}" class="tesouro-mod-select" title="Modificador de tesouro da criatura">
@@ -277,13 +416,17 @@ function renderizar() {
                     </select>
                     <button class="btn-rolar-tesouro" onclick="rolarTesouro('${cena.id}')">🎲 Rolar</button>
                     ${cena.tesouros ? `
-                    <button class="btn-inserir-tesouro-plot" onclick="inserirTesourNoPlot('${cena.id}')" title="Inserir resultado no enredo">📋 Enredo</button>
+                    <button class="btn-copiar-tesouro" onclick="copiarTesouro('${cena.id}')" title="Copiar resultado">📋 Copiar</button>
+                    <button class="btn-inserir-tesouro-plot" onclick="inserirTesourNoPlot('${cena.id}')" title="Inserir resultado no enredo">📜 Enredo</button>
                     <button class="btn-limpar-tesouro" onclick="limparTesouro('${cena.id}')" title="Limpar resultado">✖</button>` : ''}
                 </div>
                 <div id="tesouro-resultado-${cena.id}" class="tesouro-resultado ${cena.tesouros ? 'visivel' : ''}">${cena.tesouros ? cena.tesouros.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') : ''}</div>
             </div>` : ''}
             ${(cena.tipo === 'Exploracao' || cena.tipo === 'Interpretacao') ? `
-            <div class="perigo-section" onclick="event.stopPropagation()">
+            <button class="btn-paredinha" onclick="togglePainel('${cena.id}'); event.stopPropagation()" title="Perigo Complexo">
+                <span class="paredinha-icon recolhido-icon">◀</span>
+            </button>
+            <div class="perigo-section recolhido" onclick="event.stopPropagation()">
                 <div class="perigo-controles">
                     <span class="perigo-label">⚠️ Perigo Complexo:</span>
                     <button class="btn-buscar-perigo" onclick="abrirModalPerigos('${cena.id}')">🔍 Buscar Perigo</button>
@@ -302,26 +445,25 @@ function renderizar() {
                     <button class="btn-inserir-perigo-plot" onclick="inserirPerigoNoPlot('${cena.id}')" title="Inserir texto do perigo no enredo">📋 Inserir no Enredo</button>
                 </div>` : ''}
             </div>` : ''}`;
-    container.appendChild(card);
-  });
-  atualizarResumo();
+  return card;
 }
 
 function salvarDados() {
   localStorage.setItem('t20_missoes_cenas', JSON.stringify(cenasAtuais));
+  localStorage.setItem('t20_missoes_partes', JSON.stringify(partes));
   localStorage.setItem('t20_missoes_nivel', document.getElementById('selectNivel').value);
   localStorage.setItem('t20_missoes_nome', document.getElementById('nomeMissao').value);
 }
 
 function carregarDados() {
   const cenasSalvas = localStorage.getItem('t20_missoes_cenas');
+  const partesSalvas = localStorage.getItem('t20_missoes_partes');
   const nivelSalvo = localStorage.getItem('t20_missoes_nivel');
   if (cenasSalvas) cenasAtuais = JSON.parse(cenasSalvas);
+  if (partesSalvas) partes = JSON.parse(partesSalvas);
   if (nivelSalvo) document.getElementById('selectNivel').value = nivelSalvo;
   const nomeSalvo = localStorage.getItem('t20_missoes_nome');
   if (nomeSalvo) document.getElementById('nomeMissao').value = nomeSalvo;
-  // Carrega ficha ativa
-  // No carregarDados()
   try {
     const fichasSalvas = localStorage.getItem('t20_biblioteca_fichas');
     if (fichasSalvas) bibliotecaFichas = JSON.parse(fichasSalvas);
@@ -347,8 +489,12 @@ function gerarSugestao(tipoEstrutura) {
 function adicionarCena(tipo) {
   cenasAtuais.push({
     id: "id-" + Date.now() + Math.random().toString(36).substr(2, 9),
-    tipo: tipo, titulo: CONFIG_T20.bancoCenas[tipo][Math.floor(Math.random() * CONFIG_T20.bancoCenas[tipo].length)],
-    dificuldadeSelecionada: (tipo === "Boss") ? "bNormal" : (tipo === "Combate") ? "cNormal" : "complexo", plot: ""
+    tipo: tipo,
+    titulo: tipo === 'Anotacao'
+      ? 'Nova Anotação'
+      : CONFIG_T20.bancoCenas[tipo][Math.floor(Math.random() * CONFIG_T20.bancoCenas[tipo].length)],
+    dificuldadeSelecionada: (tipo === "Boss") ? "bNormal" : (tipo === "Combate") ? "cNormal" : (tipo === "Anotacao") ? "nota" : "complexo",
+    plot: ""
   });
   renderizar(); salvarDados();
 }
@@ -371,23 +517,29 @@ function togglePainel(cenaId) {
   const card = document.querySelector(`[data-cena-id="${cenaId}"]`);
   if (!card) return;
   const painel = card.querySelector('.tesouro-section, .perigo-section');
-  const btn = card.querySelector('.btn-toggle-painel');
+  const icone = card.querySelector('.paredinha-icon');
   if (!painel) return;
   const recolhido = painel.classList.toggle('recolhido');
-  if (btn) btn.textContent = recolhido ? '▶' : '◀';
+  if (icone) {
+    icone.textContent = recolhido ? '◀' : '▶';
+    icone.classList.toggle('recolhido-icon', recolhido);
+  }
 }
 
 function limparTudo() {
-  if (confirm("⚠️ Isso apagará TODAS as cenas da missão atual. Deseja continuar?")) {
+  if (confirm("⚠️ Isso apagará TODAS as cenas e partes da missão atual. Deseja continuar?")) {
     cenasAtuais = [];
+    partes = [];
     localStorage.removeItem('t20_missoes_cenas');
+    localStorage.removeItem('t20_missoes_partes');
     renderizar();
   }
 }
 
-function calcularDesgaste() {
+function calcularDesgaste(cenas) {
+  const lista = (cenas || cenasAtuais).filter(c => c.tipo !== 'Anotacao');
   let p = 0;
-  cenasAtuais.forEach(c => {
+  lista.forEach(c => {
     const d = c.dificuldadeSelecionada;
     if (d === 'bDificil') p += 5; else if (d === 'bNormal' || d === 'cDificil') p += 4;
     else if (d === 'bFacil' || d === 'cNormal') p += 3; else if (d === 'cFacil' || d === 'dificil') p += 2;
@@ -397,6 +549,60 @@ function calcularDesgaste() {
   if (p > 8) return { texto: "Perigosa", cor: "#d35400" };
   if (p > 4) return { texto: "Moderada", cor: "#e67e22" };
   return { texto: "Tranquila", cor: "#27ae60" };
+}
+
+// ===== GESTÃO DE PARTES =====
+
+function adicionarParte() {
+  const n = partes.length + 1;
+  partes.push({
+    id: 'parte-' + Date.now() + Math.random().toString(36).substr(2, 4),
+    nome: `Parte ${n}`,
+    collapsed: false
+  });
+  // Associa cenas sem parte à primeira parte criada (só na primeira vez)
+  if (partes.length === 1) {
+    cenasAtuais.forEach(c => { if (!c.parteId) c.parteId = partes[0].id; });
+  }
+  salvarDados();
+  renderizar();
+  mostrarToast(`📑 Parte ${n} criada!`, 'sucesso');
+}
+
+function removerParte(id) {
+  if (!confirm('Remover esta parte? As cenas dela ficarão sem parte.')) return;
+  cenasAtuais.forEach(c => { if (c.parteId === id) c.parteId = null; });
+  partes = partes.filter(p => p.id !== id);
+  salvarDados();
+  renderizar();
+  mostrarToast('Parte removida.', 'aviso');
+}
+
+function editarNomeParte(id, nome) {
+  const p = partes.find(x => x.id === id);
+  if (p) { p.nome = nome; salvarDados(); }
+}
+
+function toggleCollapseParte(id) {
+  const p = partes.find(x => x.id === id);
+  if (p) {
+    p.collapsed = !p.collapsed;
+    salvarDados();
+    // Atualiza só o DOM sem re-renderizar tudo
+    const chevron = document.querySelector(`[data-parte-id="${id}"] .parte-chevron`);
+    const cenasEl = document.getElementById(`parte-cenas-${id}`);
+    if (chevron) chevron.classList.toggle('collapsed', p.collapsed);
+    if (cenasEl) cenasEl.classList.toggle('collapsed', p.collapsed);
+  }
+}
+
+function moverCenaParaParte(cenaId, parteId) {
+  const cena = cenasAtuais.find(c => c.id === cenaId);
+  if (cena) {
+    cena.parteId = parteId || null;
+    salvarDados();
+    renderizar();
+  }
 }
 
 function atualizarResumo() {
@@ -409,29 +615,81 @@ function atualizarResumo() {
   const pontos = [1, 2, 3, 4].map(i =>
     `<span class="intensidade-ponto ${i <= nivel ? 'ativo' : ''}"></span>`
   ).join('');
+
+  // Linha por parte (se existirem partes)
+  let partesHtml = '';
+  if (partes.length > 0) {
+    partesHtml = `<div class="resumo-partes">` + partes.map(p => {
+      const cenasDaParte = cenasAtuais.filter(c => c.parteId === p.id);
+      if (cenasDaParte.length === 0) return '';
+      const dp = calcularDesgaste(cenasDaParte);
+      const np = niveis.indexOf(dp.texto) + 1;
+      const pts = [1,2,3,4].map(i => `<span class="intensidade-ponto ${i <= np ? 'ativo' : ''}"></span>`).join('');
+      return `<span class="resumo-parte-chip" style="border-color:${dp.cor}44; color:${dp.cor};">
+        ${p.nome}: <strong>${dp.texto}</strong>
+        <span class="intensidade-pontos">${pts}</span>
+        <span style="opacity:.55; font-size:.75rem;">(${cenasDaParte.length})</span>
+      </span>`;
+    }).filter(Boolean).join('') + `</div>`;
+  }
+
   res.innerHTML = `
         <div class="status-bar" style="background-color: ${s.cor}">
             <div style="display:flex; align-items:center; gap:12px;">
-                <strong>Intensidade:</strong>
+                <strong>Intensidade Total:</strong>
                 <span>${s.texto}</span>
                 <div class="intensidade-pontos">${pontos}</div>
             </div>
             <span>(${cenasAtuais.length} Cena${cenasAtuais.length !== 1 ? 's' : ''})</span>
-        </div>`;
+        </div>
+        ${partesHtml}`;
+}
+
+// Converte markdown simples em HTML para o PDF
+function markdownParaHtml(texto) {
+  if (!texto) return '<i style="color:#aaa;">Sem enredo definido.</i>';
+  let html = texto
+    // Escape HTML entities first
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    // Headings: ####, ###, ##, #
+    .replace(/^#{4}\s+(.+)$/gm, '<h4 style="font-size:1rem; margin:12px 0 4px; color:#333;">$1</h4>')
+    .replace(/^#{3}\s+(.+)$/gm, '<h3 style="font-size:1.1rem; margin:14px 0 5px; color:#222;">$1</h3>')
+    .replace(/^#{2}\s+(.+)$/gm, '<h2 style="font-size:1.25rem; margin:16px 0 6px; color:#111; border-bottom:1px solid #ddd; padding-bottom:3px;">$1</h2>')
+    .replace(/^#{1}\s+(.+)$/gm, '<h1 style="font-size:1.4rem; margin:18px 0 8px; color:#8b0000;">$1</h1>')
+    // Bold + italic combined: ***text***
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    // Bold: **text**
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Italic: *text* or _text_
+    .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+    .replace(/_([^_\n]+)_/g, '<em>$1</em>')
+    // Horizontal rule: ---
+    .replace(/^---+$/gm, '<hr style="border:none; border-top:1px solid #ccc; margin:10px 0;">')
+    // Bullet lists: lines starting with * or - (not bold)
+    .replace(/^[*\-]\s+(.+)$/gm, '<li style="margin:2px 0;">$1</li>')
+    // Wrap consecutive <li> in <ul>
+    .replace(/(<li[^>]*>.*<\/li>\n?)+/g, m => `<ul style="margin:6px 0 6px 18px; padding:0;">${m}</ul>`)
+    // Numbered lists: 1. 2. etc
+    .replace(/^\d+\.\s+(.+)$/gm, '<li style="margin:2px 0;">$1</li>')
+    // Inline code: `code`
+    .replace(/`([^`]+)`/g, '<code style="background:#f0f0f0; padding:1px 4px; border-radius:3px; font-family:monospace; font-size:0.9em;">$1</code>')
+    // Line breaks: double newline → paragraph, single → <br>
+    .split(/\n{2,}/).map(block => {
+      // Already HTML block (h1-h4, ul, hr, li) — don't wrap
+      if (/^<(h[1-4]|ul|hr|li)/.test(block.trim())) return block;
+      if (!block.trim()) return '';
+      return `<p style="margin:6px 0; line-height:1.65;">${block.replace(/\n/g, '<br>')}</p>`;
+    }).join('\n');
+  return html;
 }
 
 async function exportarPDF() {
   const nomeAventura = document.getElementById('nomeMissao').value || "Missão T20";
   const nivel = document.getElementById('selectNivel').value;
-  const elemento = document.createElement('div');
-  elemento.style.padding = "0px";
-  elemento.style.color = "#000";
 
   showLoading();
 
-  // Resolve a imagem de cada cena:
-  // 1. Se tiver base64 local → usa direto (100% garantido no PDF)
-  // 2. Se tiver URL → tenta converter (pode falhar por CORS)
+  // Resolve imagens
   const imagensResolvidas = {};
   for (const cena of cenasAtuais) {
     if (cena.imagemBase64) {
@@ -441,49 +699,106 @@ async function exportarPDF() {
     }
   }
 
-  let conteudoCenas = "";
-  cenasAtuais.forEach((cena, index) => {
+  // Resumo de intensidade — inline styles, sem depender de classes CSS
+  const s = calcularDesgaste();
+  const corIntensidade = s.cor;
+  let resumoHtml = `
+    <div style="background:${corIntensidade}; color:#fff; padding:10px 16px; border-radius:8px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; font-family:Georgia,serif;">
+      <span><strong>Intensidade Total:</strong> ${s.texto}</span>
+      <span>${cenasAtuais.filter(c => c.tipo !== 'Anotacao').length} Cena(s)</span>
+    </div>`;
+  if (partes.length > 0) {
+    resumoHtml += `<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">`;
+    partes.forEach(p => {
+      const cp = cenasAtuais.filter(c => c.parteId === p.id && c.tipo !== 'Anotacao');
+      if (cp.length === 0) return;
+      const dp = calcularDesgaste(cp);
+      resumoHtml += `<span style="padding:4px 10px; border:1px solid ${dp.cor}; color:${dp.cor}; border-radius:20px; font-size:9pt;">${p.nome}: <strong>${dp.texto}</strong> (${cp.length})</span>`;
+    });
+    resumoHtml += `</div>`;
+  }
+
+  const renderCenaHtml = (cena, numero) => {
     const select = document.querySelector(`select[data-id="${cena.id}"]`);
     const difLabel = select ? select.options[select.selectedIndex].text : "";
     const imgSrc = imagensResolvidas[cena.id];
     const temImagem = cena.imagemBase64 || cena.imagem;
-
     const imgHtml = imgSrc
       ? `<img src="${imgSrc}" style="width:100%; max-height:400px; object-fit:contain; border-radius:5px; margin-top:10px; display:block;">`
-      : (temImagem ? `<p style="color:#aaa; font-size:9pt; font-style:italic; margin-top:8px;">⚠️ Imagem não disponível no PDF — use o upload local para garantir.</p>` : '');
+      : (temImagem ? `<p style="color:#999; font-size:9pt; font-style:italic; margin-top:8px;">⚠️ Imagem não disponível no PDF.</p>` : '');
+    const plotHtml = markdownParaHtml(cena.plot);
 
-    conteudoCenas += `
-            <div style="margin-bottom:30px; padding:15px; border:1px solid #eee; border-radius:10px; page-break-inside:avoid;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #8b0000; margin-bottom:10px; padding-bottom:6px;">
-                    <strong style="font-family:'Tormenta',serif; font-size:1.3rem;">CENA ${index + 1}: ${cena.titulo.toUpperCase()}</strong>
-                    <span style="font-weight:bold; color:#444;">${difLabel}</span>
-                </div>
-                <p style="margin:10px 0; font-size:11pt; line-height:1.6; white-space:pre-wrap;">${cena.plot || '<i>Sem enredo definido.</i>'}</p>
-                ${imgHtml}
-            </div>`;
-  });
+    if (cena.tipo === 'Anotacao') {
+      return `
+      <div style="margin-bottom:20px; padding:12px 15px; border-left:4px solid #888; background:#f7f7f7; border-radius:0 8px 8px 0; page-break-inside:avoid;">
+        <div style="font-size:8pt; color:#888; font-weight:bold; margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em;">📝 ${cena.titulo}</div>
+        <div style="font-size:10.5pt; line-height:1.6; color:#333;">${plotHtml}</div>
+        ${imgHtml}
+      </div>`;
+    }
 
-  elemento.innerHTML = `
-        <div style="padding:20px; font-family:Georgia,serif;">
-            <h1 style="color:#8b0000; font-family:'Tormenta',serif; text-align:center; margin:0 0 5px 0; font-size:2.5rem;">${nomeAventura.toUpperCase()}</h1>
-            <p style="text-align:center; font-weight:bold; margin:0 0 20px 0; color:#555;">Nível do Grupo: ${nivel}</p>
-            <div style="margin-bottom:20px;">${document.getElementById('resumoMissao').innerHTML}</div>
-            ${conteudoCenas}
+    return `
+      <div style="margin-bottom:28px; padding:14px; border:1px solid #ddd; border-radius:10px; page-break-inside:avoid; background:#fff;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #8b0000; margin-bottom:10px; padding-bottom:6px;">
+          <strong style="font-size:1.15rem; color:#1a1a1a;">CENA ${numero}: ${cena.titulo.toUpperCase()}</strong>
+          <span style="font-size:9pt; font-weight:bold; color:#555;">${difLabel}</span>
+        </div>
+        <div style="font-size:11pt; line-height:1.65; color:#222;">${plotHtml}</div>
+        ${imgHtml}
+      </div>`;
+  };
+
+  let conteudoCenas = "";
+  if (partes.length > 0) {
+    let cenaGlobal = 1;
+    partes.forEach(parte => {
+      const cenasDaParte = cenasAtuais.filter(c => c.parteId === parte.id);
+      if (cenasDaParte.length === 0) return;
+      const dp = calcularDesgaste(cenasDaParte.filter(c => c.tipo !== 'Anotacao'));
+      conteudoCenas += `
+        <div style="margin:28px 0 10px; page-break-before:auto;">
+          <h2 style="font-size:1.4rem; color:#8b0000; border-bottom:3px solid #8b0000; padding-bottom:6px; margin-bottom:4px; font-family:Georgia,serif;">${parte.nome}</h2>
+          <p style="color:#666; font-size:9pt; margin:0 0 14px;">Intensidade: <strong>${dp.texto}</strong> · ${cenasDaParte.filter(c=>c.tipo!=='Anotacao').length} cena(s)</p>
         </div>`;
+      cenasDaParte.forEach(cena => { conteudoCenas += renderCenaHtml(cena, cena.tipo !== 'Anotacao' ? cenaGlobal++ : ''); });
+    });
+    const orphans = cenasAtuais.filter(c => !c.parteId || !partes.find(p => p.id === c.parteId));
+    if (orphans.length > 0) {
+      conteudoCenas += `<h2 style="font-size:1.3rem; color:#555; border-bottom:2px solid #ccc; padding-bottom:6px; margin:28px 0 14px; font-family:Georgia,serif;">Cenas Avulsas</h2>`;
+      orphans.forEach(cena => { conteudoCenas += renderCenaHtml(cena, cena.tipo !== 'Anotacao' ? cenaGlobal++ : ''); });
+    }
+  } else {
+    let cenaGlobal = 1;
+    cenasAtuais.forEach(cena => { conteudoCenas += renderCenaHtml(cena, cena.tipo !== 'Anotacao' ? cenaGlobal++ : ''); });
+  }
+
+  // Monta o elemento e INSERE NO DOM (off-screen) — obrigatório para html2canvas funcionar
+  const elemento = document.createElement('div');
+  elemento.style.cssText = 'position:fixed; left:-9999px; top:0; width:794px; background:#fff; color:#000; font-family:Georgia,serif;';
+  elemento.innerHTML = `
+    <div style="padding:24px 28px;">
+      <h1 style="color:#8b0000; text-align:center; margin:0 0 4px 0; font-size:2rem; font-family:Georgia,serif;">${nomeAventura.toUpperCase()}</h1>
+      <p style="text-align:center; font-weight:bold; margin:0 0 18px 0; color:#555; font-size:10pt;">Nível do Grupo: ${nivel}</p>
+      <div style="margin-bottom:18px;">${resumoHtml}</div>
+      ${conteudoCenas}
+    </div>`;
+  document.body.appendChild(elemento);
 
   const opt = {
     margin: [10, 10, 10, 10],
     filename: `${nomeAventura.replace(/\s+/g, '_')}_Nivel_${nivel}.pdf`,
     image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: false, allowTaint: true, logging: false },
+    html2canvas: { scale: 2, useCORS: false, allowTaint: true, logging: false, backgroundColor: '#ffffff' },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    pagebreak: { mode: ['css', 'legacy'] }
   };
 
   html2pdf().set(opt).from(elemento).save().then(() => {
+    document.body.removeChild(elemento);
     hideLoading();
     mostrarToast('📄 PDF exportado com sucesso!', 'sucesso');
   }).catch(err => {
+    document.body.removeChild(elemento);
     console.error(err);
     hideLoading();
     mostrarToast('❌ Erro ao gerar PDF. Verifique o console.', 'erro');
@@ -563,6 +878,7 @@ function salvarAventuraNaCampanha() {
     idCampanha: "camp-" + Date.now(),
     nome: nome,
     nivel: nivel,
+    partes: JSON.parse(JSON.stringify(partes)),
     cenas: JSON.parse(JSON.stringify(cenasAtuais)),
     intensidade: calcularDesgaste()
   };
@@ -633,48 +949,78 @@ async function exportarCampanhaPDF() {
   }
 
   const elemento = document.createElement('div');
-  elemento.style.padding = "20px";
+  elemento.style.cssText = 'position:fixed; left:-9999px; top:0; width:794px; background:#fff; color:#000; font-family:Georgia,serif; padding:20px;';
 
-  let htmlCompleto = `<h1 style="text-align:center; color:#8b0000; font-family:'Tormenta'; font-size:3rem;">DIÁRIO DE CAMPANHA</h1><hr>`;
+  let htmlCompleto = `<h1 style="text-align:center; color:#8b0000; font-family:Georgia,serif; font-size:2.5rem; margin-bottom:8px;">DIÁRIO DE CAMPANHA</h1><hr style="margin-bottom:20px;">`;
 
   campanha.forEach((adv, i) => {
     htmlCompleto += `
-            <div style="page-break-before:always; padding-top:20px;">
-                <h2 style="color:#8b0000; font-family:'Tormenta';">Capítulo ${i + 1}: ${adv.nome}</h2>
-                <p>Nível Recomendado: ${adv.nivel} | Intensidade: ${adv.intensidade.texto}</p>
-                <div style="margin-top:20px;">`;
+            <div style="page-break-before:${i === 0 ? 'auto' : 'always'}; padding-top:20px;">
+                <h2 style="color:#8b0000; font-family:Georgia,serif; font-size:1.5rem;">Capítulo ${i + 1}: ${adv.nome}</h2>
+                <p style="color:#555; margin:4px 0 16px;">Nível Recomendado: ${adv.nivel} | Intensidade: ${adv.intensidade.texto}</p>
+                <div>`;
 
-    adv.cenas.forEach((cena, idx) => {
+    const advPartes = adv.partes || [];
+    let cenaGlobal = 1;
+
+    const renderCenaAdv = (cena) => {
       const imgSrc = cena._imgResolvida;
       const temImagem = cena.imagemBase64 || cena.imagem;
       const imgHtml = imgSrc
         ? `<img src="${imgSrc}" style="width:100%; border-radius:5px; max-height:300px; object-fit:contain; display:block;">`
-        : (temImagem ? `<p style="color:#aaa; font-size:9pt; font-style:italic;">⚠️ Imagem não disponível — use upload local para garantir.</p>` : '');
-      htmlCompleto += `
-                <div style="margin-bottom:20px; border:1px solid #eee; padding:12px; page-break-inside:avoid; border-radius:8px;">
-                    <strong style="font-size:1.1rem;">Cena ${idx + 1}: ${cena.titulo}</strong>
-                    <p style="white-space:pre-wrap; line-height:1.5; margin:8px 0;">${cena.plot || 'Sem enredo.'}</p>
-                    ${imgHtml}
-                </div>`;
-    });
+        : (temImagem ? `<p style="color:#999; font-size:9pt; font-style:italic;">⚠️ Imagem não disponível — use upload local para garantir.</p>` : '');
+      const plotHtml = markdownParaHtml(cena.plot);
+
+      if (cena.tipo === 'Anotacao') {
+        return `
+              <div style="margin-bottom:16px; padding:10px 14px; border-left:4px solid #888; background:#f7f7f7; border-radius:0 6px 6px 0; page-break-inside:avoid;">
+                  <div style="font-size:8pt; color:#888; font-weight:bold; margin-bottom:4px; text-transform:uppercase;">📝 ${cena.titulo}</div>
+                  <div style="font-size:10pt; line-height:1.55; color:#333;">${plotHtml}</div>
+                  ${imgHtml}
+              </div>`;
+      }
+      return `
+              <div style="margin-bottom:20px; border:1px solid #ddd; padding:12px; page-break-inside:avoid; border-radius:8px; background:#fff;">
+                  <strong style="font-size:1rem; color:#1a1a1a;">Cena ${cenaGlobal++}: ${cena.titulo}</strong>
+                  <div style="line-height:1.55; margin:8px 0; font-size:10.5pt; color:#222;">${plotHtml}</div>
+                  ${imgHtml}
+              </div>`;
+    };
+
+    if (advPartes.length > 0) {
+      advPartes.forEach(parte => {
+        const cenasDaParte = adv.cenas.filter(c => c.parteId === parte.id);
+        if (cenasDaParte.length === 0) return;
+        const dp = calcularDesgaste(cenasDaParte.filter(c => c.tipo !== 'Anotacao'));
+        htmlCompleto += `<h3 style="color:#8b0000; border-bottom:2px solid #8b0000; padding-bottom:4px; margin:20px 0 12px; font-family:Georgia,serif;">${parte.nome} <span style="font-size:.85rem; color:#666; font-weight:normal;">(${dp.texto})</span></h3>`;
+        cenasDaParte.forEach(cena => { htmlCompleto += renderCenaAdv(cena); });
+      });
+      const orphans = adv.cenas.filter(c => !c.parteId || !advPartes.find(p => p.id === c.parteId));
+      orphans.forEach(cena => { htmlCompleto += renderCenaAdv(cena); });
+    } else {
+      adv.cenas.forEach(cena => { htmlCompleto += renderCenaAdv(cena); });
+    }
 
     htmlCompleto += `</div></div>`;
   });
 
   elemento.innerHTML = htmlCompleto;
+  document.body.appendChild(elemento);
 
   const opt = {
     margin: 10,
     filename: 'Campanha_T20_Completa.pdf',
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-    html2canvas: { scale: 2, useCORS: false, allowTaint: true },
+    pagebreak: { mode: ['css', 'legacy'] },
+    html2canvas: { scale: 2, useCORS: false, allowTaint: true, backgroundColor: '#ffffff' },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
   html2pdf().set(opt).from(elemento).save().then(() => {
+    document.body.removeChild(elemento);
     hideLoading();
     mostrarToast('📚 Campanha exportada com sucesso!', 'sucesso');
   }).catch(err => {
+    document.body.removeChild(elemento);
     console.error(err);
     hideLoading();
     mostrarToast('❌ Erro ao gerar PDF da campanha.', 'erro');
@@ -689,6 +1035,7 @@ function carregarMissaoDaCampanha(id) {
       if (!confirmar) return;
     }
     cenasAtuais = JSON.parse(JSON.stringify(aventura.cenas));
+    partes = JSON.parse(JSON.stringify(aventura.partes || []));
     document.getElementById('nomeMissao').value = aventura.nome;
     document.getElementById('selectNivel').value = aventura.nivel;
     renderizar();
@@ -703,6 +1050,7 @@ function atualizarMissaoDaCampanha(id) {
     if (confirmar) {
       aventura.nome = document.getElementById('nomeMissao').value;
       aventura.nivel = document.getElementById('selectNivel').value;
+      aventura.partes = JSON.parse(JSON.stringify(partes));
       aventura.cenas = JSON.parse(JSON.stringify(cenasAtuais));
       aventura.intensidade = calcularDesgaste();
       localStorage.setItem('t20_campanha', JSON.stringify(campanha));
@@ -2580,6 +2928,15 @@ function inserirPerigoNoPlot(cenaId) {
     if (plotEl && !plotEl.classList.contains('aberto')) plotEl.classList.add('aberto');
   }, 60);
   mostrarToast('📋 Perigo inserido no enredo!', 'sucesso');
+}
+
+function copiarTesouro(cenaId) {
+  const cena = cenasAtuais.find(c => c.id === cenaId);
+  if (!cena || !cena.tesouros) return;
+  const texto = cena.tesouros.replace(/\*\*(.+?)\*\*/g, '$1');
+  navigator.clipboard.writeText(texto).then(() => {
+    mostrarToast('📋 Tesouro copiado!', 'sucesso');
+  });
 }
 
 function inserirTesourNoPlot(cenaId) {
